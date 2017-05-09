@@ -1,3 +1,3 @@
-gcc -c test.c -I ../src/gg
-gcc -c ../src/gg/gg.c -I ../src/gg
+gcc -g -c test.c -I. 
+gcc -g -c ../src/gg/gg.c -I. 
 gcc -o test test.o gg.o
