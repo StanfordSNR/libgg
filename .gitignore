@@ -6,3 +6,7 @@
 config.mak
 lib/musl-gcc.specs
 /obj/
+.DS_Store
+._.DS_Store
+.idea
+cmake-build-debug
