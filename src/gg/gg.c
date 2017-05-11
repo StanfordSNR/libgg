@@ -4,7 +4,7 @@
 #include "gg.h"
 
 char *get_gg_file( const char *filename ){
-  char env_name[100];
+  char env_name[4096];
   strcpy(env_name, filename);
 
   //fprintf(stderr, "DANITER DEBUG : %s\n", filename);
