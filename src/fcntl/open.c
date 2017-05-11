@@ -8,9 +8,11 @@ int open(const char *filename, int flags, ...)
 {
 	mode_t mode = 0;
 
-	char *new_file = get_gg_file(filename);
-	if ( NULL != new_file ){
+	if( getenv( GG_ENV_VAR ) ) {
+		char *new_file = get_gg_file(filename);
+		if (NULL != new_file) {
 			filename = new_file;
+		}
 	}
 
 	if ((flags & O_CREAT) || (flags & O_TMPFILE) == O_TMPFILE) {

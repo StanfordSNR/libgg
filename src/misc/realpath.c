@@ -6,6 +6,7 @@
 #include <unistd.h>
 #include <string.h>
 #include "syscall.h"
+#include "gg.h"
 
 void __procfdname(char *, unsigned);
 
@@ -21,6 +22,10 @@ char *realpath(const char *restrict filename, char *restrict resolved)
 		errno = EINVAL;
 		return 0;
 	}
+
+  if( getenv( GG_ENV_VAR ) ){
+    return resolved ? strcpy( resolved, filename ) : strdup( filename );
+  }
 
 	fd = sys_open(filename, O_PATH|O_NONBLOCK|O_CLOEXEC);
 	if (fd < 0) return 0;

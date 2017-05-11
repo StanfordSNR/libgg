@@ -1,10 +1,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <limits.h>
+
 #include "gg.h"
 
 char *get_gg_file( const char *filename ){
-  char env_name[4096];
+  char env_name[PATH_MAX];
   strcpy(env_name, filename);
 
   //fprintf(stderr, "DANITER DEBUG : %s\n", filename);
