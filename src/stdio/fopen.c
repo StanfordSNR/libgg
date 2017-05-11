@@ -2,6 +2,7 @@
 #include <fcntl.h>
 #include <string.h>
 #include <errno.h>
+#include "gg.h"
 
 FILE *fopen(const char *restrict filename, const char *restrict mode)
 {
@@ -13,6 +14,13 @@ FILE *fopen(const char *restrict filename, const char *restrict mode)
 	if (!strchr("rwa", *mode)) {
 		errno = EINVAL;
 		return 0;
+	}
+
+	if( getenv( GG_ENV_VAR ) ) {
+		char *new_file = get_gg_file(filename);
+		if (NULL != new_file) {
+			filename = new_file;
+		}
 	}
 
 	/* Compute the flags to pass to open() */
