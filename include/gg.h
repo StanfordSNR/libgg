@@ -8,6 +8,6 @@
  */
 char *get_gg_file( const char *filename );
 
-const char* GG_ENV_VAR = "GG";
+#define GG_ENV_VAR  "GG"
 
 #endif
