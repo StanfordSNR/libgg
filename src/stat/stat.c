@@ -13,7 +13,7 @@ int stat(const char *restrict path, struct stat *restrict buf)
 		if (NULL != new_file) {
       path = new_file;
 		} else {
-			fprintf(stderr, "DANITER ACCESS DENIED : %s\n", path);
+			fprintf(stderr, "DANITER STAT DENIED : %s\n", path);
 			return ENOENT;
 		}
 	}
