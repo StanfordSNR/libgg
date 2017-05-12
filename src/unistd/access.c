@@ -2,6 +2,7 @@
 #include <fcntl.h>
 #include <stdlib.h>
 #include <errno.h>
+#include <stdio.h>
 #include "syscall.h"
 #include "gg.h"
 
@@ -12,8 +13,9 @@ int access(const char *filename, int amode)
 		if (NULL != new_file) {
 			filename = new_file;
 		} else {
-      return ENOENT;
-    }
+            fprintf(stderr, "DANITER ACCESS DENIED : %s\n", filename);
+            return ENOENT;
+        }
 	}
 #ifdef SYS_access
 	return syscall(SYS_access, filename, amode);
