@@ -12,10 +12,8 @@ char *get_gg_file( const char *filename ){
   fprintf(stderr, "DANITER DEBUG : %s\n", filename);
 
   for( char *c = env_name; *c != '\0'; c++){
-    char *dot = NULL;
-    if( ( dot = strchr( c, '.' ) ) || ( dot = strchr( c, '/' ) ) || ( dot = strchr( c, '-' ) ) ){
-      *dot = '_';
-      c = dot;
+    if( *c == '.' || *c == '/' || *c == '-' ){
+      *c = '_';
     }
   }
   fprintf( stderr, "DANITER GET_GG_FILE ENVNAME: %s\n", env_name );
