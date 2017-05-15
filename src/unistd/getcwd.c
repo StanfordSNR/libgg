@@ -6,6 +6,8 @@
 
 char *getcwd(char *buf, size_t size)
 {
+    errno = EINVAL;
+    return 0;
 	char tmp[PATH_MAX];
 	if (!buf) {
 		buf = tmp;

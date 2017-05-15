@@ -8,14 +8,15 @@
 
 int stat(const char *restrict path, struct stat *restrict buf)
 {
-	if( getenv( GG_ENV_VAR ) ) {
-		char *new_file = get_gg_file(path);
-		if (NULL != new_file) {
-      path = new_file;
-		} else {
+    if( getenv( GG_ENV_VAR ) ) {
+        char *new_file = get_gg_file(path);
+        if (NULL != new_file) {
+            path = new_file;
+        } else {
 			fprintf(stderr, "DANITER STAT DENIED : %s\n", path);
-			return ENOENT;
-		}
+            errno = ENOENT;
+            return ENOENT;
+        }
 	}
 
 #ifdef SYS_stat
