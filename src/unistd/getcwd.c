@@ -8,6 +8,7 @@ char *getcwd(char *buf, size_t size)
 {
     errno = EINVAL;
     return 0;
+    // DANITER HACK TODO: rewrite
 	char tmp[PATH_MAX];
 	if (!buf) {
 		buf = tmp;
