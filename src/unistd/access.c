@@ -13,7 +13,9 @@ int access(const char *filename, int amode)
 		if (NULL != new_file) {
 			filename = new_file;
 		} else {
-            fprintf(stderr, "DANITER ACCESS DENIED : %s\n", filename);
+            if( getenv( GG_VERBOSE ) ){
+                fprintf(stderr, "DANITER ACCESS DENIED : %s\n", filename);
+            }
             return ENOENT;
         }
 	}

@@ -10,4 +10,6 @@ char *get_gg_file( const char *filename );
 
 #define GG_ENV_VAR  "GG"
 
+#define GG_VERBOSE "GG_VERBOSE"
+
 #endif

@@ -13,7 +13,9 @@ int stat(const char *restrict path, struct stat *restrict buf)
         if (NULL != new_file) {
             path = new_file;
         } else {
-			fprintf(stderr, "DANITER STAT DENIED : %s\n", path);
+            if( getenv( GG_VERBOSE ) ){
+			    fprintf(stderr, "DANITER STAT DENIED : %s\n", path);
+            }
             errno = ENOENT;
             return ENOENT;
         }
