@@ -11,6 +11,8 @@
 
 typedef struct
 {
+  char gg_path[ PATH_MAX ];
+
   char filename[ PATH_MAX ];
   char hash[ 64 + 1 ];
   int order;
@@ -44,6 +46,26 @@ bool infile_decode_callback( pb_istream_t * stream,
   if ( !pb_decode( stream, gg_protobuf_InFile_fields, &infile_proto ) ) {
     return false;
   };
+
+  static const char * gg_dir = NULL;
+
+  if ( gg_dir == NULL ) {
+    gg_dir = getenv( GG_DIR_ENVAR );
+    if ( gg_dir == NULL ) {
+      fprintf( stderr, "[gg] gg directory is not set, using default (.gg).\n" );
+      gg_dir = ".gg";
+    }
+  }
+
+  if ( strlen( gg_dir ) + strlen( infile.hash ) + 1 >= PATH_MAX ) {
+    fprintf( stderr, "[gg] gg path is longer than PATH_MAX, aborted." );
+    return false;
+  }
+
+  infile.gg_path[ 0 ] = '\0';
+  strcat( infile.gg_path, gg_dir );
+  strcat( infile.gg_path, "/" );
+  strcat( infile.gg_path, infile.hash );
 
   infile.order = infile_proto.order;
   vector_InFile_push_back( &infiles, &infile );
@@ -97,38 +119,16 @@ gg_protobuf_Thunk read_thunk()
 
 char * get_gg_file( const char * filename )
 {
-  static const char * gg_dir = NULL;
-
-  if ( gg_dir == NULL ) {
-    gg_dir = getenv( GG_DIR_ENVAR );
-    if ( gg_dir == NULL ) {
-      fprintf( stderr, "[gg] gg directory is not set, using default (.gg).\n" );
-      gg_dir = ".gg";
-    }
-  }
-
   if ( !infiles_populated ) {
     read_thunk();
     infiles_populated = true;
   }
 
-  const char * hash;
   for ( size_t i = 0; i < infiles.count; i++ ) {
     if ( strcmp( filename, infiles.data[ i ].filename ) == 0 ) {
-      hash = infiles.data[ i ].hash;
-      break;
+      return infiles.data[ i ].gg_path;
     }
   }
 
-  if ( hash == NULL ) {
-    return NULL;
-  }
-
-  char * result = malloc( strlen( hash ) + 1 + strlen( gg_dir ) + 1 );
-  result[ 0 ] = 0;
-  strcat( result, gg_dir );
-  strcat( result, "/" );
-  strcat( result, hash );
-
-  return result;
+  return NULL;
 }

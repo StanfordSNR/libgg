@@ -16,7 +16,7 @@ FILE *fopen(const char *restrict filename, const char *restrict mode)
 		return 0;
 	}
 
-	if( getenv( GG_ENV_VAR ) ) {
+	if( getenv( GG_ENABLED_ENVAR ) ) {
 		char *new_file = get_gg_file(filename);
 		if (NULL != new_file) {
 			filename = new_file;

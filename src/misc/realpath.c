@@ -23,7 +23,7 @@ char *realpath(const char *restrict filename, char *restrict resolved)
 		return 0;
 	}
 
-  if( getenv( GG_ENV_VAR ) ){
+  if( getenv( GG_ENABLED_ENVAR ) ){
     return resolved ? strcpy( resolved, filename ) : strdup( filename );
   }
 

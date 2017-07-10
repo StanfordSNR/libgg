@@ -8,12 +8,12 @@
 
 int stat(const char *restrict path, struct stat *restrict buf)
 {
-    if( getenv( GG_ENV_VAR ) ) {
+    if( getenv( GG_ENABLED_ENVAR ) ) {
         char *new_file = get_gg_file(path);
         if (NULL != new_file) {
             path = new_file;
         } else {
-            if( getenv( GG_VERBOSE ) ){
+            if( getenv( GG_VERBOSE_ENVAR ) ){
 			    fprintf(stderr, "DANITER STAT DENIED : %s\n", path);
             }
             errno = ENOENT;

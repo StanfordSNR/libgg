@@ -8,8 +8,8 @@
 
 int execve(const char *path, char *const argv[], char *const envp[])
 {
-	if( getenv( GG_ENV_VAR ) ){
-        if( getenv( GG_VERBOSE ) ){
+	if( getenv( GG_ENABLED_ENVAR ) ){
+        if( getenv( GG_VERBOSE_ENVAR ) ){
             fprintf( stderr, "DANITER EXEC %s\n", path );
         }
 

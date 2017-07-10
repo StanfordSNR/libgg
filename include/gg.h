@@ -1,8 +1,6 @@
 #ifndef _GG_H_
 #define _GG_H_
 
-/* Please note that the user is responsible to free the memory for the resulting
-   string */
 char * get_gg_file( const char * filename );
 
 #define GG_THUNK_MAGIC_NUMBER "##GGTHUNK##"
