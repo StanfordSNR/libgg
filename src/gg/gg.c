@@ -15,31 +15,23 @@
 #include "gg.pb.h"
 #include "pb_decode.h"
 
-FILE * unrestricted_fopen(const char *restrict filename, const char *restrict mode)
+/* from fcntl/open.c */
+int unrestricted_open(const char *filename, int flags, ...)
 {
-	FILE *f;
-	int fd;
-	int flags;
+	mode_t mode = 0;
 
-	/* Check for valid initial mode character */
-	if (!strchr("rwa", *mode)) {
-		errno = EINVAL;
-		return 0;
+	if ((flags & O_CREAT) || (flags & O_TMPFILE) == O_TMPFILE) {
+		va_list ap;
+		va_start(ap, flags);
+		mode = va_arg(ap, mode_t);
+		va_end(ap);
 	}
 
-	/* Compute the flags to pass to open() */
-	flags = __fmodeflags(mode);
-
-	fd = sys_open(filename, flags, 0666);
-	if (fd < 0) return 0;
-	if (flags & O_CLOEXEC)
+	int fd = __sys_open_cp(filename, flags, mode);
+	if (fd>=0 && (flags & O_CLOEXEC))
 		__syscall(SYS_fcntl, fd, F_SETFD, FD_CLOEXEC);
 
-	f = __fdopen(fd, mode);
-	if (f) return f;
-
-	__syscall(SYS_close, fd);
-	return 0;
+	return __syscall_ret(fd);
 }
 
 typedef struct
@@ -117,7 +109,7 @@ gg_protobuf_Thunk read_thunk()
   }
 
   /* read the thunk file into a buffer */
-  FILE * fp = unrestricted_fopen( thunk_filename, "r" );
+  FILE * fp = fdopen( unrestricted_open( thunk_filename, O_RDONLY ), "r" );
 
   if ( fp == NULL ) {
     fprintf( stderr, "[gg] Cannot open file: %s\n", thunk_filename );
