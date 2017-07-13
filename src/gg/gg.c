@@ -85,14 +85,16 @@ bool infile_decode_callback( pb_istream_t * stream,
   if ( gg_dir == NULL ) {
     gg_dir = getenv( GG_DIR_ENVAR );
     if ( gg_dir == NULL ) {
-      fprintf( stderr, "[gg] gg directory is not set, using default (.gg).\n" );
+      GG_ERROR( "gg directory is not set, using default (.gg).\n" );
       gg_dir = ".gg";
     }
   }
 
+  GG_DEBUG( "gg directory: %s\n", gg_dir );
+
   if ( strnlen( infile.hash, 1 ) ) {
     if ( strlen( gg_dir ) + strlen( infile.hash ) + 1 >= PATH_MAX ) {
-      fprintf( stderr, "[gg] gg path is longer than PATH_MAX, aborted." );
+      GG_ERROR( "gg path is longer than PATH_MAX, aborted." );
       return false;
     }
 
@@ -114,22 +116,24 @@ bool infile_decode_callback( pb_istream_t * stream,
   return true;
 }
 
-gg_protobuf_Thunk read_thunk()
+void read_thunk()
 {
   char * thunk_filename = getenv( GG_THUNK_PATH_ENVAR );
   gg_protobuf_Thunk result = {};
 
+  GG_DEBUG( "thunk filename: %s\n", thunk_filename );
+
   if ( thunk_filename == NULL ) {
-    fprintf( stderr, "[gg] Cannot find thunk filename.\n" );
-    return result;
+    GG_ERROR( "cannot find thunk filename.\n" );
+    return;
   }
 
   /* read the thunk file into a buffer */
   FILE * fp = fdopen( unrestricted_open( thunk_filename, O_RDONLY ), "r" );
 
   if ( fp == NULL ) {
-    fprintf( stderr, "[gg] Cannot open file: %s\n", thunk_filename );
-    return result;
+    GG_ERROR( "cannot open file: %s\n", thunk_filename );
+    return;
   }
 
   fseek( fp, 0, SEEK_END );
@@ -148,14 +152,14 @@ gg_protobuf_Thunk read_thunk()
   magic_num[ sizeof( GG_THUNK_MAGIC_NUMBER ) - 1 ] = '\0';
 
   if ( strcmp( GG_THUNK_MAGIC_NUMBER, ( char * )magic_num ) != 0 ) {
-    fprintf( stderr, "[gg] Not a thunk: %s\n", thunk_filename );
-    return result;
+    GG_ERROR( "not a thunk: %s\n", thunk_filename );
+    return;
   }
 
   result.infiles.funcs.decode = &infile_decode_callback;
   pb_decode( &is, gg_protobuf_Thunk_fields, &result );
 
-  return result;
+  GG_INFO( "thunk processed: %s\n", thunk_filename );
 }
 
 char * get_gg_file( const char * filename )
