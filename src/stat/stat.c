@@ -1,7 +1,6 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <errno.h>
-
 #include "syscall.h"
 #include "libc.h"
 #include "gg.h"
@@ -25,7 +24,7 @@ int stat(const char *restrict path, struct stat *restrict buf)
 			}
 
 			errno = ENOENT;
-			return ENOENT;
+			return -1;
 		}
 	}
 
