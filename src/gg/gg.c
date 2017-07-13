@@ -18,20 +18,20 @@
 /* from fcntl/open.c */
 int unrestricted_open(const char *filename, int flags, ...)
 {
-	mode_t mode = 0;
+  mode_t mode = 0;
 
-	if ((flags & O_CREAT) || (flags & O_TMPFILE) == O_TMPFILE) {
-		va_list ap;
-		va_start(ap, flags);
-		mode = va_arg(ap, mode_t);
-		va_end(ap);
-	}
+  if ((flags & O_CREAT) || (flags & O_TMPFILE) == O_TMPFILE) {
+  va_list ap;
+  va_start(ap, flags);
+  mode = va_arg(ap, mode_t);
+  va_end(ap);
+  }
 
-	int fd = __sys_open_cp(filename, flags, mode);
-	if (fd>=0 && (flags & O_CLOEXEC))
-		__syscall(SYS_fcntl, fd, F_SETFD, FD_CLOEXEC);
+  int fd = __sys_open_cp(filename, flags, mode);
+  if (fd>=0 && (flags & O_CLOEXEC))
+  __syscall(SYS_fcntl, fd, F_SETFD, FD_CLOEXEC);
 
-	return __syscall_ret(fd);
+  return __syscall_ret(fd);
 }
 
 typedef struct
@@ -43,9 +43,17 @@ typedef struct
   int order;
 } InFile;
 
+typedef struct {
+  char path[ PATH_MAX ];
+} InDir;
+
 VECTOR( InFile );
+VECTOR( InDir );
+
 static vector_InFile infiles;
-static bool infiles_populated = false;
+static vector_InDir indirs;
+
+static bool thunk_read = false;
 
 bool str_decode_callback( pb_istream_t * stream,
                                       const pb_field_t * field,
@@ -61,7 +69,7 @@ bool infile_decode_callback( pb_istream_t * stream,
 {
   gg_protobuf_InFile infile_proto = {};
 
-  InFile infile = {0};
+  InFile infile = { 0 };
 
   infile_proto.filename.funcs.decode = &str_decode_callback;
   infile_proto.filename.arg = infile.filename;
@@ -82,18 +90,26 @@ bool infile_decode_callback( pb_istream_t * stream,
     }
   }
 
-  if ( strlen( gg_dir ) + strlen( infile.hash ) + 1 >= PATH_MAX ) {
-    fprintf( stderr, "[gg] gg path is longer than PATH_MAX, aborted." );
-    return false;
+  if ( strnlen( infile.hash, 1 ) ) {
+    if ( strlen( gg_dir ) + strlen( infile.hash ) + 1 >= PATH_MAX ) {
+      fprintf( stderr, "[gg] gg path is longer than PATH_MAX, aborted." );
+      return false;
+    }
+
+    infile.gg_path[ 0 ] = '\0';
+    strcat( infile.gg_path, gg_dir );
+    strcat( infile.gg_path, "/" );
+    strcat( infile.gg_path, infile.hash );
+
+    infile.order = infile_proto.order;
+    vector_InFile_push_back( &infiles, &infile );
   }
-
-  infile.gg_path[ 0 ] = '\0';
-  strcat( infile.gg_path, gg_dir );
-  strcat( infile.gg_path, "/" );
-  strcat( infile.gg_path, infile.hash );
-
-  infile.order = infile_proto.order;
-  vector_InFile_push_back( &infiles, &infile );
+  else {
+    /* this is not an infile, it's an indirectory */
+    InDir indir = { 0 };
+    strncpy( indir.path, infile.filename, PATH_MAX );
+    vector_InDir_push_back( &indirs, &indir );
+  }
 
   return true;
 }
@@ -144,9 +160,9 @@ gg_protobuf_Thunk read_thunk()
 
 char * get_gg_file( const char * filename )
 {
-  if ( !infiles_populated ) {
+  if ( !thunk_read ) {
     read_thunk();
-    infiles_populated = true;
+    thunk_read = true;
   }
 
   for ( size_t i = 0; i < infiles.count; i++ ) {
