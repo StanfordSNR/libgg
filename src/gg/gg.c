@@ -81,8 +81,6 @@ bool infile_decode_callback( pb_istream_t * stream,
     return false;
   };
 
-  static const char * gg_dir = NULL;
-
   if ( strnlen( infile.hash, 1 ) ) {
     if ( strlen( gg_dir ) + strlen( infile.hash ) + 1 >= PATH_MAX ) {
       GG_ERROR( "gg path is longer than PATH_MAX, aborted." );
