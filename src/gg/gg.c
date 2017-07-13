@@ -53,6 +53,7 @@ VECTOR( InDir );
 static vector_InFile infiles;
 static vector_InDir indirs;
 
+static char * gg_dir = NULL;
 static bool thunk_read = false;
 
 bool str_decode_callback( pb_istream_t * stream,
@@ -82,16 +83,6 @@ bool infile_decode_callback( pb_istream_t * stream,
 
   static const char * gg_dir = NULL;
 
-  if ( gg_dir == NULL ) {
-    gg_dir = getenv( GG_DIR_ENVAR );
-    if ( gg_dir == NULL ) {
-      GG_ERROR( "gg directory is not set, using default (.gg).\n" );
-      gg_dir = ".gg";
-    }
-  }
-
-  GG_DEBUG( "gg directory: %s\n", gg_dir );
-
   if ( strnlen( infile.hash, 1 ) ) {
     if ( strlen( gg_dir ) + strlen( infile.hash ) + 1 >= PATH_MAX ) {
       GG_ERROR( "gg path is longer than PATH_MAX, aborted." );
@@ -118,6 +109,16 @@ bool infile_decode_callback( pb_istream_t * stream,
 
 void read_thunk()
 {
+  if ( gg_dir == NULL ) {
+    gg_dir = getenv( GG_DIR_ENVAR );
+    if ( gg_dir == NULL ) {
+      GG_ERROR( "gg directory is not set, using default (.gg).\n" );
+      gg_dir = ".gg";
+    }
+  }
+
+  GG_DEBUG( "gg directory: %s\n", gg_dir );
+
   char * thunk_filename = getenv( GG_THUNK_PATH_ENVAR );
   gg_protobuf_Thunk result = {};
 
