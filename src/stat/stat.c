@@ -8,17 +8,23 @@
 
 int stat(const char *restrict path, struct stat *restrict buf)
 {
-    if( getenv( GG_ENABLED_ENVAR ) ) {
-        char *new_file = get_gg_file(path);
-        if (NULL != new_file) {
-            path = new_file;
-        } else {
-            if( getenv( GG_VERBOSE_ENVAR ) ){
-			    fprintf(stderr, "DANITER STAT DENIED : %s\n", path);
-            }
-            errno = ENOENT;
-            return ENOENT;
-        }
+	if( getenv( GG_ENABLED_ENVAR ) ) {
+		char * new_file = get_gg_file( path );
+
+		if ( NULL != new_file ) {
+				path = new_file;
+		}
+		else if ( is_dir_allowed( path ) ) {
+			path = getenv( GG_DIR_ENVAR );
+		}
+		else {
+			if( getenv( GG_VERBOSE_ENVAR ) ) {
+				fprintf( stderr, "[gg] stat() denied: %s\n", path );
+			}
+
+			errno = ENOENT;
+			return ENOENT;
+		}
 	}
 
 #ifdef SYS_stat

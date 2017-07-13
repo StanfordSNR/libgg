@@ -173,3 +173,20 @@ char * get_gg_file( const char * filename )
 
   return NULL;
 }
+
+bool is_dir_allowed( const char * path )
+{
+  /* XXX this is not thread-safe */
+  if ( !thunk_read ) {
+    read_thunk();
+    thunk_read = true;
+  }
+
+  for ( size_t i = 0; i < indirs.count; i++ ) {
+    if ( strcmp( path, indirs.data[ i ].path ) == 0 ) {
+      return true;
+    }
+  }
+
+  return false;
+}

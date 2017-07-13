@@ -1,7 +1,10 @@
 #ifndef _GG_H_
 #define _GG_H_
 
+#include <stdbool.h>
+
 char * get_gg_file( const char * filename );
+bool is_dir_allowed( const char * path );
 
 #define GG_THUNK_MAGIC_NUMBER "##GGTHUNK##"
 
