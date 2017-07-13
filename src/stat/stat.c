@@ -8,13 +8,15 @@
 
 int stat(const char *restrict path, struct stat *restrict buf)
 {
+	int gg_fake_dir = -1;
+
 	if( getenv( GG_ENABLED_ENVAR ) ) {
 		char * new_file = get_gg_file( path );
 
 		if ( NULL != new_file ) {
 				path = new_file;
 		}
-		else if ( is_dir_allowed( path ) ) {
+		else if ( ( gg_fake_dir = is_dir_allowed( path ) ) >= 0 ) {
 			path = getenv( GG_DIR_ENVAR );
 		}
 		else {
@@ -27,11 +29,20 @@ int stat(const char *restrict path, struct stat *restrict buf)
 		}
 	}
 
+	int retval;
 #ifdef SYS_stat
-	return syscall(SYS_stat, path, buf);
+	retval = syscall(SYS_stat, path, buf);
 #else
-	return syscall(SYS_fstatat, AT_FDCWD, path, buf, 0);
+	retval = syscall(SYS_fstatat, AT_FDCWD, path, buf, 0);
 #endif
+
+	/* [gg] we assign a different inode num to each folder to make them appear as
+	   different directories */
+	if ( gg_fake_dir >= 0 ) {
+		buf->st_ino += ( gg_fake_dir + 1 );
+	}
+
+	return retval;
 }
 
 LFS64(stat);

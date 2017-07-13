@@ -4,7 +4,7 @@
 #include <stdbool.h>
 
 char * get_gg_file( const char * filename );
-bool is_dir_allowed( const char * path );
+int is_dir_allowed( const char * path );
 
 #define GG_THUNK_MAGIC_NUMBER "##GGTHUNK##"
 
