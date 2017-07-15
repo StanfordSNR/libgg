@@ -2,7 +2,7 @@
 #include <fcntl.h>
 #include <string.h>
 #include <errno.h>
-#include "gg.h"
+#include "../gg/gg.h"
 
 FILE *fopen(const char *restrict filename, const char *restrict mode)
 {

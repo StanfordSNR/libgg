@@ -9,11 +9,12 @@
 #include "syscall.h"
 #include "libc.h"
 
-#include "util/vector.h"
-
 #include "gg.h"
 #include "gg.pb.h"
 #include "pb_decode.h"
+
+VECTORFUNCS( InFile );
+VECTORFUNCS( InDir );
 
 /* from fcntl/open.c */
 int unrestricted_open(const char *filename, int flags, ...)
@@ -33,28 +34,6 @@ int unrestricted_open(const char *filename, int flags, ...)
 
   return __syscall_ret(fd);
 }
-
-typedef struct
-{
-  char gg_path[ PATH_MAX ];
-
-  char filename[ PATH_MAX ];
-  char hash[ 64 + 1 ];
-  int order;
-} InFile;
-
-typedef struct {
-  char path[ PATH_MAX ];
-} InDir;
-
-VECTOR( InFile );
-VECTOR( InDir );
-
-static vector_InFile infiles;
-static vector_InDir indirs;
-
-static char * gg_dir = NULL;
-static bool thunk_read = false;
 
 bool str_decode_callback( pb_istream_t * stream,
                                       const pb_field_t * field,
@@ -82,13 +61,13 @@ bool infile_decode_callback( pb_istream_t * stream,
   };
 
   if ( strnlen( infile.hash, 1 ) ) {
-    if ( strlen( gg_dir ) + strlen( infile.hash ) + 1 >= PATH_MAX ) {
+    if ( strlen( __gg_dir ) + strlen( infile.hash ) + 1 >= PATH_MAX ) {
       GG_ERROR( "gg path is longer than PATH_MAX, aborted." );
       return false;
     }
 
     infile.gg_path[ 0 ] = '\0';
-    strcat( infile.gg_path, gg_dir );
+    strcat( infile.gg_path, __gg_dir );
     strcat( infile.gg_path, "/" );
     strcat( infile.gg_path, infile.hash );
 
@@ -105,33 +84,15 @@ bool infile_decode_callback( pb_istream_t * stream,
   return true;
 }
 
-void read_thunk()
+void __gg_read_thunk()
 {
-  if ( gg_dir == NULL ) {
-    gg_dir = getenv( GG_DIR_ENVAR );
-    if ( gg_dir == NULL ) {
-      GG_ERROR( "gg directory is not set, using default (.gg).\n" );
-      gg_dir = ".gg";
-    }
-  }
-
-  GG_DEBUG( "gg directory: %s\n", gg_dir );
-
-  char * thunk_filename = getenv( GG_THUNK_PATH_ENVAR );
   gg_protobuf_Thunk result = {};
 
-  GG_DEBUG( "thunk filename: %s\n", thunk_filename );
-
-  if ( thunk_filename == NULL ) {
-    GG_ERROR( "cannot find thunk filename.\n" );
-    return;
-  }
-
   /* read the thunk file into a buffer */
-  FILE * fp = fdopen( unrestricted_open( thunk_filename, O_RDONLY ), "r" );
+  FILE * fp = fdopen( unrestricted_open( __gg_thunk, O_RDONLY ), "r" );
 
   if ( fp == NULL ) {
-    GG_ERROR( "cannot open file: %s\n", thunk_filename );
+    GG_ERROR( "cannot open file: %s\n", __gg_thunk );
     return;
   }
 
@@ -151,23 +112,18 @@ void read_thunk()
   magic_num[ sizeof( GG_THUNK_MAGIC_NUMBER ) - 1 ] = '\0';
 
   if ( strcmp( GG_THUNK_MAGIC_NUMBER, ( char * )magic_num ) != 0 ) {
-    GG_ERROR( "not a thunk: %s\n", thunk_filename );
+    GG_ERROR( "not a thunk: %s\n", __gg_thunk );
     return;
   }
 
   result.infiles.funcs.decode = &infile_decode_callback;
   pb_decode( &is, gg_protobuf_Thunk_fields, &result );
 
-  GG_INFO( "thunk processed: %s\n", thunk_filename );
+  GG_INFO( "thunk processed: %s\n", __gg_thunk );
 }
 
 char * get_gg_file( const char * filename )
 {
-  if ( !thunk_read ) {
-    read_thunk();
-    thunk_read = true;
-  }
-
   for ( size_t i = 0; i < infiles.count; i++ ) {
     if ( strcmp( filename, infiles.data[ i ].filename ) == 0 ) {
       return infiles.data[ i ].gg_path;
@@ -179,12 +135,6 @@ char * get_gg_file( const char * filename )
 
 int is_dir_allowed( const char * path )
 {
-  /* XXX this is not thread-safe */
-  if ( !thunk_read ) {
-    read_thunk();
-    thunk_read = true;
-  }
-
   for ( size_t i = 0; i < indirs.count; i++ ) {
     if ( strcmp( path, indirs.data[ i ].path ) == 0 ) {
       return i;

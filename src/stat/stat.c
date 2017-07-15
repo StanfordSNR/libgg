@@ -3,7 +3,8 @@
 #include <errno.h>
 #include "syscall.h"
 #include "libc.h"
-#include "gg.h"
+
+#include "../gg/gg.h"
 
 int stat(const char *restrict path, struct stat *restrict buf)
 {

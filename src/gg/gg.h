@@ -1,10 +1,39 @@
 #ifndef _GG_H_
 #define _GG_H_
 
+#include <limits.h>
 #include <stdbool.h>
 
+#include "util/vector.h"
+
+void __gg_read_thunk();
 char * get_gg_file( const char * filename );
 int is_dir_allowed( const char * path );
+
+typedef struct
+{
+  char gg_path[ PATH_MAX ];
+
+  char filename[ PATH_MAX ];
+  char hash[ 64 + 1 ];
+  int order;
+} InFile;
+
+typedef struct {
+  char path[ PATH_MAX ];
+} InDir;
+
+VECTORDEF( InFile );
+VECTORDEF( InDir );
+
+extern bool __gg_verbose;
+extern bool __gg_enabled;
+
+extern char * __gg_dir;
+extern char * __gg_thunk;
+
+extern vector_InFile infiles;
+extern vector_InDir indirs;
 
 #define GG_INFO( ... )    fprintf( stderr, "[gg:info] " __VA_ARGS__ )
 #define GG_DEBUG( ... )   fprintf( stderr, "[gg:debug] " __VA_ARGS__ )

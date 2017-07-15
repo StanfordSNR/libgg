@@ -3,7 +3,8 @@
 #include <errno.h>
 #include "syscall.h"
 #include "libc.h"
-#include "gg.h"
+
+#include "../gg/gg.h"
 
 int open(const char *filename, int flags, ...)
 {
@@ -11,7 +12,7 @@ int open(const char *filename, int flags, ...)
 
 	if( getenv( GG_ENABLED_ENVAR ) ) {
 		char * new_file = get_gg_file(filename);
-		
+
 		if (NULL != new_file) {
 			filename = new_file;
 		}

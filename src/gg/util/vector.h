@@ -3,13 +3,14 @@
 
 #define INITIAL_SIZE 10
 
-#define VECTOR(x) typedef struct \
+#define VECTORDEF(x) typedef struct \
 { \
   size_t size; \
   size_t count; \
   x * data; \
 } vector_##x; \
-\
+
+#define VECTORFUNCS(x) \
 void vector_##x##_init( vector_##x * v ) \
 { \
   v->data = NULL; \

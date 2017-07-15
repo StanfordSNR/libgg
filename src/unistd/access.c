@@ -4,7 +4,7 @@
 #include <errno.h>
 #include <stdio.h>
 #include "syscall.h"
-#include "gg.h"
+#include "../gg/gg.h"
 
 int access(const char *filename, int amode)
 {

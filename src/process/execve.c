@@ -4,7 +4,7 @@
 #include <errno.h>
 
 #include "syscall.h"
-#include "gg.h"
+#include "../gg/gg.h"
 
 int execve(const char *path, char *const argv[], char *const envp[])
 {
