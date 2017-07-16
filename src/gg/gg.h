@@ -4,6 +4,7 @@
 #include <limits.h>
 #include <stdbool.h>
 #include <sys/stat.h>
+#include <sys/types.h>
 
 #include "util/vector.h"
 
@@ -18,6 +19,7 @@ typedef struct
   char filename[ PATH_MAX ];
   char hash[ 64 + 1 ];
   int order;
+  off_t size;
 } InFile;
 
 typedef struct

@@ -72,6 +72,7 @@ bool infile_decode_callback( pb_istream_t * stream,
     strcat( infile.gg_path, infile.hash );
 
     infile.order = infile_proto.order;
+    infile.size = infile_proto.size;
     vector_InFile_push_back( &__gg.infiles, &infile );
 
     GG_INFO( "infile: %s (%.8s...)\n", infile.filename, infile.hash );
