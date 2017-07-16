@@ -16,7 +16,7 @@ int open(const char *filename, int flags, ...)
 		if (NULL != new_file) {
 			filename = new_file;
 		}
-		else {
+		else if (strcmp(filename, __gg_outfile) != 0 ) {
 			errno = ENOENT;
 			return -1;
 		}

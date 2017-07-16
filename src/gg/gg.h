@@ -34,6 +34,7 @@ extern char * __gg_thunk;
 
 extern vector_InFile infiles;
 extern vector_InDir indirs;
+extern char __gg_outfile[ PATH_MAX ];
 
 #define GG_INFO( ... )    fprintf( stderr, "[gg:info] " __VA_ARGS__ )
 #define GG_DEBUG( ... )   fprintf( stderr, "[gg:debug] " __VA_ARGS__ )

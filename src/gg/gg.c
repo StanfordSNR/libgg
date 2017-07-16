@@ -73,12 +73,16 @@ bool infile_decode_callback( pb_istream_t * stream,
 
     infile.order = infile_proto.order;
     vector_InFile_push_back( &infiles, &infile );
+
+    GG_INFO( "infile: %s (%.8s...)\n", infile.gg_path, infile.hash );
   }
   else {
     /* this is not an infile, it's an indirectory */
     InDir indir = { 0 };
     strncpy( indir.path, infile.filename, PATH_MAX );
     vector_InDir_push_back( &indirs, &indir );
+
+    GG_INFO( "indir: %s\n", indir.path );
   }
 
   return true;
@@ -117,9 +121,12 @@ void __gg_read_thunk()
   }
 
   result.infiles.funcs.decode = &infile_decode_callback;
+  result.outfile.funcs.decode = &str_decode_callback;
+  result.outfile.arg = __gg_outfile;
   pb_decode( &is, gg_protobuf_Thunk_fields, &result );
 
   GG_INFO( "thunk processed: %s\n", __gg_thunk );
+  GG_INFO( "outfile: %s\n", __gg_outfile );
 }
 
 char * get_gg_file( const char * filename )

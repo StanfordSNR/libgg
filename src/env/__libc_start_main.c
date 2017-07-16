@@ -71,6 +71,7 @@ char * __gg_dir;
 char * __gg_thunk;
 vector_InFile infiles;
 vector_InDir indirs;
+char __gg_outfile[PATH_MAX];
 
 void __gg_init()
 {
