@@ -3,11 +3,12 @@
 
 #include <limits.h>
 #include <stdbool.h>
+#include <sys/stat.h>
 
 #include "util/vector.h"
 
 void __gg_read_thunk();
-char * get_gg_file( const char * filename );
+char * __gg_get_filename( const char * filename );
 int is_dir_allowed( const char * path );
 
 typedef struct

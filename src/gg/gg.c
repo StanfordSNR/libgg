@@ -129,7 +129,7 @@ void __gg_read_thunk()
   GG_INFO( "outfile: %s\n", __gg.outfile );
 }
 
-char * get_gg_file( const char * filename )
+char * __gg_get_filename( const char * filename )
 {
   for ( size_t i = 0; i < __gg.infiles.count; i++ ) {
     if ( strcmp( filename, __gg.infiles.data[ i ].filename ) == 0 ) {

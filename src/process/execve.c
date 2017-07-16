@@ -13,7 +13,7 @@ int execve(const char *path, char *const argv[], char *const envp[])
             GG_INFO( "execve: %s\n", path );
         }
 
-        char *new_file = get_gg_file(path);
+        char *new_file = __gg_get_filename(path);
         if ( NULL != new_file ) {
             path = new_file;
         } else {

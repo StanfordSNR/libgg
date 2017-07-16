@@ -12,7 +12,7 @@ int open(const char *filename, int flags, ...)
 	mode_t mode = 0;
 
 	if(__gg.enabled) {
-		char * new_file = get_gg_file(filename);
+		char * new_file = __gg_get_filename(filename);
 
 		if (NULL != new_file) {
 			filename = new_file;

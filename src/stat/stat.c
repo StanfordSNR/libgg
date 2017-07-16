@@ -11,7 +11,7 @@ int stat(const char *restrict path, struct stat *restrict buf)
 	int gg_fake_dir = -1;
 
 	if( __gg.enabled ) {
-		char * new_file = get_gg_file( path );
+		char * new_file = __gg_get_filename( path );
 
 		if ( NULL != new_file ) {
 				path = new_file;
