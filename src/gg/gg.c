@@ -74,7 +74,7 @@ bool infile_decode_callback( pb_istream_t * stream,
     infile.order = infile_proto.order;
     vector_InFile_push_back( &infiles, &infile );
 
-    GG_INFO( "infile: %s (%.8s...)\n", infile.gg_path, infile.hash );
+    GG_INFO( "infile: %s (%.8s...)\n", infile.filename, infile.hash );
   }
   else {
     /* this is not an infile, it's an indirectory */
