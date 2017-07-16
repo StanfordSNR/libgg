@@ -8,8 +8,8 @@
 
 int execve(const char *path, char *const argv[], char *const envp[])
 {
-	if (__gg_enabled) {
-        if (__gg_verbose) {
+	if (__gg.enabled) {
+        if (__gg.verbose) {
             GG_INFO( "execve: %s\n", path );
         }
 

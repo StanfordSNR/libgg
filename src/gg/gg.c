@@ -61,18 +61,18 @@ bool infile_decode_callback( pb_istream_t * stream,
   };
 
   if ( strnlen( infile.hash, 1 ) ) {
-    if ( strlen( __gg_dir ) + strlen( infile.hash ) + 1 >= PATH_MAX ) {
+    if ( strlen( __gg.dir ) + strlen( infile.hash ) + 1 >= PATH_MAX ) {
       GG_ERROR( "gg path is longer than PATH_MAX, aborted." );
       return false;
     }
 
     infile.gg_path[ 0 ] = '\0';
-    strcat( infile.gg_path, __gg_dir );
+    strcat( infile.gg_path, __gg.dir );
     strcat( infile.gg_path, "/" );
     strcat( infile.gg_path, infile.hash );
 
     infile.order = infile_proto.order;
-    vector_InFile_push_back( &infiles, &infile );
+    vector_InFile_push_back( &__gg.infiles, &infile );
 
     GG_INFO( "infile: %s (%.8s...)\n", infile.filename, infile.hash );
   }
@@ -80,7 +80,7 @@ bool infile_decode_callback( pb_istream_t * stream,
     /* this is not an infile, it's an indirectory */
     InDir indir = { 0 };
     strncpy( indir.path, infile.filename, PATH_MAX );
-    vector_InDir_push_back( &indirs, &indir );
+    vector_InDir_push_back( &__gg.indirs, &indir );
 
     GG_INFO( "indir: %s\n", indir.path );
   }
@@ -93,10 +93,10 @@ void __gg_read_thunk()
   gg_protobuf_Thunk result = {};
 
   /* read the thunk file into a buffer */
-  FILE * fp = fdopen( unrestricted_open( __gg_thunk, O_RDONLY ), "r" );
+  FILE * fp = fdopen( unrestricted_open( __gg.thunk_file, O_RDONLY ), "r" );
 
   if ( fp == NULL ) {
-    GG_ERROR( "cannot open file: %s\n", __gg_thunk );
+    GG_ERROR( "cannot open file: %s\n", __gg.thunk_file );
     return;
   }
 
@@ -116,24 +116,24 @@ void __gg_read_thunk()
   magic_num[ sizeof( GG_THUNK_MAGIC_NUMBER ) - 1 ] = '\0';
 
   if ( strcmp( GG_THUNK_MAGIC_NUMBER, ( char * )magic_num ) != 0 ) {
-    GG_ERROR( "not a thunk: %s\n", __gg_thunk );
+    GG_ERROR( "not a thunk: %s\n", __gg.thunk_file );
     return;
   }
 
   result.infiles.funcs.decode = &infile_decode_callback;
   result.outfile.funcs.decode = &str_decode_callback;
-  result.outfile.arg = __gg_outfile;
+  result.outfile.arg = __gg.outfile;
   pb_decode( &is, gg_protobuf_Thunk_fields, &result );
 
-  GG_INFO( "thunk processed: %s\n", __gg_thunk );
-  GG_INFO( "outfile: %s\n", __gg_outfile );
+  GG_INFO( "thunk processed: %s\n", __gg.thunk_file );
+  GG_INFO( "outfile: %s\n", __gg.outfile );
 }
 
 char * get_gg_file( const char * filename )
 {
-  for ( size_t i = 0; i < infiles.count; i++ ) {
-    if ( strcmp( filename, infiles.data[ i ].filename ) == 0 ) {
-      return infiles.data[ i ].gg_path;
+  for ( size_t i = 0; i < __gg.infiles.count; i++ ) {
+    if ( strcmp( filename, __gg.infiles.data[ i ].filename ) == 0 ) {
+      return __gg.infiles.data[ i ].gg_path;
     }
   }
 
@@ -142,8 +142,8 @@ char * get_gg_file( const char * filename )
 
 int is_dir_allowed( const char * path )
 {
-  for ( size_t i = 0; i < indirs.count; i++ ) {
-    if ( strcmp( path, indirs.data[ i ].path ) == 0 ) {
+  for ( size_t i = 0; i < __gg.indirs.count; i++ ) {
+    if ( strcmp( path, __gg.indirs.data[ i ].path ) == 0 ) {
       return i;
     }
   }

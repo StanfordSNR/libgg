@@ -24,7 +24,7 @@ char *realpath(const char *restrict filename, char *restrict resolved)
 		return 0;
 	}
 
-  if(__gg_enabled){
+  if(__gg.enabled){
     return resolved ? strcpy( resolved, filename ) : strdup( filename );
   }
 

@@ -65,48 +65,42 @@ static void libc_start_init(void)
 
 weak_alias(libc_start_init, __libc_start_init);
 
-bool __gg_enabled;
-bool __gg_verbose;
-char * __gg_dir;
-char * __gg_thunk;
-vector_InFile infiles;
-vector_InDir indirs;
-char __gg_outfile[PATH_MAX];
+__gg_struct __gg;
 
 void __gg_init()
 {
 	if (getenv(GG_ENABLED_ENVAR)) {
-		__gg_enabled = true;
+		__gg.enabled = true;
 		fprintf(stderr, "[gg] running in gg mode.\n");
 	}
 	else {
-		__gg_enabled = false;
-		__gg_verbose = false;
-		__gg_dir = NULL;
-		__gg_thunk = NULL;
+		__gg.enabled = false;
+		__gg.verbose = false;
+		__gg.dir = NULL;
+		__gg.thunk_file = NULL;
 		return;
 	}
 
 	if (getenv(GG_VERBOSE_ENVAR)) {
-		__gg_verbose = true;
+		__gg.verbose = true;
 		fprintf(stderr, "[gg] verbose is on.\n");
 	}
 
-	__gg_dir = getenv(GG_DIR_ENVAR);
+	__gg.dir = getenv(GG_DIR_ENVAR);
 
-	if ( __gg_dir == NULL ) {
+	if ( __gg.dir == NULL ) {
 		GG_ERROR("gg directory is not set, using default (.gg).\n");
-		__gg_dir = ".gg";
+		__gg.dir = ".gg";
 	}
 	else {
-		GG_DEBUG("gg directory: %s\n", __gg_dir);
+		GG_DEBUG("gg directory: %s\n", __gg.dir);
 	}
 
-	__gg_thunk = getenv(GG_THUNK_PATH_ENVAR);
+	__gg.thunk_file = getenv(GG_THUNK_PATH_ENVAR);
 
-  GG_DEBUG( "thunk filename: %s\n", __gg_thunk );
+  GG_DEBUG( "thunk filename: %s\n", __gg.thunk_file );
 
-  if (__gg_thunk == NULL) {
+  if (__gg.thunk_file == NULL) {
     GG_ERROR( "cannot find thunk filename.\n" );
     return;
   }

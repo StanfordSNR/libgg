@@ -19,22 +19,27 @@ typedef struct
   int order;
 } InFile;
 
-typedef struct {
+typedef struct
+{
   char path[ PATH_MAX ];
 } InDir;
 
 VECTORDEF( InFile );
 VECTORDEF( InDir );
 
-extern bool __gg_verbose;
-extern bool __gg_enabled;
+typedef struct
+{
+	bool enabled;
+	bool verbose;
+	char * dir;
+	char * thunk_file;
 
-extern char * __gg_dir;
-extern char * __gg_thunk;
+	vector_InFile infiles;
+	vector_InDir indirs;
+	char outfile[PATH_MAX];
+} __gg_struct;
 
-extern vector_InFile infiles;
-extern vector_InDir indirs;
-extern char __gg_outfile[ PATH_MAX ];
+extern __gg_struct __gg;
 
 #define GG_INFO( ... )    fprintf( stderr, "[gg:info] " __VA_ARGS__ )
 #define GG_DEBUG( ... )   fprintf( stderr, "[gg:debug] " __VA_ARGS__ )

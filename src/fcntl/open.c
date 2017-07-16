@@ -11,13 +11,13 @@ int open(const char *filename, int flags, ...)
 {
 	mode_t mode = 0;
 
-	if(__gg_enabled) {
+	if(__gg.enabled) {
 		char * new_file = get_gg_file(filename);
 
 		if (NULL != new_file) {
 			filename = new_file;
 		}
-		else if (strcmp(filename, __gg_outfile) != 0 ) {
+		else if (strcmp(filename, __gg.outfile) != 0 ) {
 			errno = ENOENT;
 			return -1;
 		}
