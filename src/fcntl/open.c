@@ -1,6 +1,7 @@
 #include <fcntl.h>
 #include <stdarg.h>
 #include <errno.h>
+#include <string.h>
 #include "syscall.h"
 #include "libc.h"
 
