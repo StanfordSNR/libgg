@@ -79,6 +79,10 @@ void __gg_init()
 		fprintf(stderr, "[gg] running in gg mode.\n");
 	}
 	else {
+		__gg_enabled = false;
+		__gg_verbose = false;
+		__gg_dir = NULL;
+		__gg_thunk = NULL;
 		return;
 	}
 

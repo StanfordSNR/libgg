@@ -10,7 +10,7 @@ int open(const char *filename, int flags, ...)
 {
 	mode_t mode = 0;
 
-	if( getenv( GG_ENABLED_ENVAR ) ) {
+	if(__gg_enabled) {
 		char * new_file = get_gg_file(filename);
 
 		if (NULL != new_file) {

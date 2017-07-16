@@ -10,17 +10,17 @@ int stat(const char *restrict path, struct stat *restrict buf)
 {
 	int gg_fake_dir = -1;
 
-	if( getenv( GG_ENABLED_ENVAR ) ) {
+	if( __gg_enabled ) {
 		char * new_file = get_gg_file( path );
 
 		if ( NULL != new_file ) {
 				path = new_file;
 		}
 		else if ( ( gg_fake_dir = is_dir_allowed( path ) ) >= 0 ) {
-			path = getenv( GG_DIR_ENVAR );
+			path = __gg_dir;
 		}
 		else {
-			if( getenv( GG_VERBOSE_ENVAR ) ) {
+			if( __gg_verbose ) {
 				fprintf( stderr, "[gg] stat() denied: %s\n", path );
 			}
 

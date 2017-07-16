@@ -8,9 +8,9 @@
 
 int execve(const char *path, char *const argv[], char *const envp[])
 {
-	if( getenv( GG_ENABLED_ENVAR ) ){
-        if( getenv( GG_VERBOSE_ENVAR ) ){
-            fprintf( stderr, "DANITER EXEC %s\n", path );
+	if (__gg_enabled) {
+        if (__gg_verbose) {
+            GG_INFO( "execve: %s\n", path );
         }
 
         char *new_file = get_gg_file(path);
