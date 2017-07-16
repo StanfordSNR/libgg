@@ -7,9 +7,9 @@
 
 #include "util/vector.h"
 
-void __gg_read_thunk();
+void   __gg_read_thunk();
 char * __gg_get_filename( const char * filename );
-int is_dir_allowed( const char * path );
+int    __gg_stat( const char * filename, struct stat * restrict buf );
 
 typedef struct
 {

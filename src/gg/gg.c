@@ -150,3 +150,47 @@ int is_dir_allowed( const char * path )
 
   return -1;
 }
+
+int __gg_stat( const char * filename, struct stat * restrict buf )
+{
+  int file_index = 0;
+  int retval = -1;
+  bool is_directory = false;
+
+  /* let's see if this file is in infiles. */
+  for ( size_t i = 0; i < __gg.infiles.count; i++, file_index++ ) {
+    if ( strcmp( filename, __gg.infiles.data[ i ].filename ) == 0 ) {
+      retval = 0; // we found something!
+      is_directory = false;
+    }
+  }
+
+  if ( retval != 0 ) {
+    for ( size_t i = 0; i < __gg.indirs.count; i++, file_index++ ) {
+      if ( strcmp( filename, __gg.indirs.data[ i ].path ) == 0 ) {
+        retval = 0;
+        is_directory = true;
+      }
+    }
+  }
+
+  if ( retval != 0 ) {
+    errno = ENOENT;
+    return -1;
+  }
+
+  buf->st_dev = 1; /* ID of device containing file */
+  buf->st_ino = 42 + ( file_index );/* inode number */
+  buf->st_mode = is_directory ? 0040755 : 0100755; /* protection */
+  buf->st_nlink = 2; /* number of hard links */
+  buf->st_uid = 1000; /* user ID of owner */
+  buf->st_gid = 1000; /* group ID of owner */
+  buf->st_size = 0; /* XXX YET TO BE ADDED TO THE THUNK. total size, in bytes */
+  buf->st_blksize = 4096; /* blocksize for file system I/O */
+  buf->st_blocks = ( buf->st_size / 512 ); /* number of 512B blocks allocated */
+  buf->st_atime = 231508800; /* time of last access */
+  buf->st_mtime = 231508800; /* time of last modification */
+  buf->st_ctime = 231508800; /* time of last status change */
+
+  return 0;
+}
