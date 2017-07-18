@@ -3,8 +3,14 @@
 #include "syscall.h"
 #include "libc.h"
 
+#include "../gg/gg.h"
+
 int lstat(const char *restrict path, struct stat *restrict buf)
 {
+	if( __gg.enabled ) {
+		return __gg_stat( path, buf );
+	}
+
 #ifdef SYS_lstat
 	return syscall(SYS_lstat, path, buf);
 #else
