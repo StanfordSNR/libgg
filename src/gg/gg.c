@@ -168,6 +168,17 @@ int __gg_stat( const char * filename, struct stat * restrict buf )
   }
 
   if ( retval != 0 ) {
+    /* let's see if this file is in allowed files */
+    for ( size_t i = 0; i < __gg.allowed_files.count; i++, file_index++ ) {
+      if ( strcmp( filename, __gg.infiles.data[ i ].filename ) == 0 ) {
+        retval = 0;
+        is_directory = false;
+        break;
+      }
+    }
+  }
+
+  if ( retval != 0 ) {
     errno = ENOENT;
     return -1;
   }
