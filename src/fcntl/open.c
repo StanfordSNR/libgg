@@ -53,7 +53,7 @@ int open(const char *filename, int flags, ...)
 
 	int retval = __syscall_ret(fd);
 
-	if ( __gg.enable && __gg_check_to_allow && retval != -1 ) {
+	if ( __gg.enabled && __gg_check_to_allow && retval != -1 ) {
 		vector_AllowedFiles_push_back( &__gg.allowed_files, strdup( filename ) );
 	}
 
