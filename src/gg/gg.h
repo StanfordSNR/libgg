@@ -27,8 +27,11 @@ typedef struct
   char path[ PATH_MAX ];
 } InDir;
 
+typedef InDir AllowedFiles;
+
 VECTORDEF( InFile );
 VECTORDEF( InDir );
+VECTORDEF( AllowedFiles );
 
 typedef struct
 {
@@ -39,6 +42,7 @@ typedef struct
 
 	vector_InFile infiles;
 	vector_InDir indirs;
+  vector_AllowedFiles allowed_files;
 	char outfile[PATH_MAX];
 } __gg_struct;
 

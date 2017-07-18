@@ -10,16 +10,33 @@
 int open(const char *filename, int flags, ...)
 {
 	mode_t mode = 0;
+	bool __gg_check_to_allow = false;
 
-	if(__gg.enabled) {
+	if (__gg.enabled && strcmp(filename, __gg.outfile) != 0) {
 		char * new_file = __gg_get_filename(filename);
 
 		if (NULL != new_file) {
 			filename = new_file;
 		}
-		else if (strcmp(filename, __gg.outfile) != 0 ) {
-			errno = ENOENT;
-			return -1;
+		else if ((flags & O_CREAT) && (flags & O_EXCL)) {
+			/* When running in gg mode, we will allow creating files with
+			   O_EXCL | O_CREAT. This allows applications to create temporary files. */
+			__gg_check_to_allow = true;
+		}
+		else {
+			/* let's see if we allowed this file before */
+			bool allowed = false;
+			for (size_t i = 0; i < __gg.allowed_files.count; i++) {
+				if (strcmp(filename, __gg.allowed_files.data[ i ].path) == 0) {
+					allowed = true;
+					break;
+				}
+			}
+
+			if (!allowed) {
+				errno = ENOENT;
+				return -1;
+			}
 		}
 	}
 
@@ -34,7 +51,13 @@ int open(const char *filename, int flags, ...)
 	if (fd>=0 && (flags & O_CLOEXEC))
 		__syscall(SYS_fcntl, fd, F_SETFD, FD_CLOEXEC);
 
-	return __syscall_ret(fd);
+	int retval = __syscall_ret(fd);
+
+	if ( retval != -1 ) {
+		vector_AllowedFiles_push_back( &__gg.allowed_files, strdup( filename ) );
+	}
+
+	return retval;
 }
 
 LFS64(open);

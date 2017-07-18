@@ -15,6 +15,7 @@
 
 VECTORFUNCS( InFile );
 VECTORFUNCS( InDir );
+VECTORFUNCS( AllowedFiles );
 
 /* from fcntl/open.c */
 int unrestricted_open(const char *filename, int flags, ...)

@@ -71,7 +71,10 @@ void __gg_init()
 {
 	if (getenv(GG_ENABLED_ENVAR)) {
 		__gg.enabled = true;
-		fprintf(stderr, "[gg] running in gg mode.\n");
+		vector_InFile_init( &__gg.infiles );
+		vector_InDir_init( &__gg.indirs );
+		vector_AllowedFiles_init( &__gg.allowed_files );
+		GG_DEBUG( "running in gg mode.\n" );
 	}
 	else {
 		__gg.enabled = false;
@@ -83,7 +86,7 @@ void __gg_init()
 
 	if (getenv(GG_VERBOSE_ENVAR)) {
 		__gg.verbose = true;
-		fprintf(stderr, "[gg] verbose is on.\n");
+		GG_DEBUG( "verbose is on.\n" );
 	}
 
 	__gg.dir = getenv(GG_DIR_ENVAR);

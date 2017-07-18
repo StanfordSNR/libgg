@@ -9,6 +9,11 @@
   size_t count; \
   x * data; \
 } vector_##x; \
+\
+void vector_##x##_init( vector_##x * v ); \
+void vector_##x##_push_back( vector_##x * v, x * d ); \
+x * vector_##x##_at( vector_##x * v, size_t index ); \
+void vector_##x##_free( vector_##x * v );
 
 #define VECTORFUNCS(x) \
 void vector_##x##_init( vector_##x * v ) \
