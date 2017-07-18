@@ -12,30 +12,39 @@ int open(const char *filename, int flags, ...)
 	mode_t mode = 0;
 	bool __gg_check_to_allow = false;
 
-	if (__gg.enabled && strcmp(filename, __gg.outfile) != 0) {
-		char * new_file = __gg_get_filename(filename);
-
-		if (NULL != new_file) {
-			filename = new_file;
-		}
-		else if ((flags & O_CREAT) && (flags & O_EXCL)) {
-			/* When running in gg mode, we will allow creating files with
-			   O_EXCL | O_CREAT. This allows applications to create temporary files. */
-			__gg_check_to_allow = true;
+	/* NOTE there are some cases that the outfile could be also an infile. One
+	   example is `ranlib`. To distinguish these (as the infile must be read
+	   from .gg directory), the outfile must be opened with O_WRONLY flag,
+		 otherwise it will be treated as an infile */
+	if (__gg.enabled) {
+		if ( strcmp(filename, __gg.outfile) == 0 && ( flags & O_WRONLY ) ) {
+			/* let's allow it */
 		}
 		else {
-			/* let's see if we allowed this file before */
-			bool allowed = false;
-			for (size_t i = 0; i < __gg.allowed_files.count; i++) {
-				if (strcmp(filename, __gg.allowed_files.data[ i ].path) == 0) {
-					allowed = true;
-					break;
-				}
-			}
+			char * new_file = __gg_get_filename(filename);
 
-			if (!allowed) {
-				errno = ENOENT;
-				return -1;
+			if (NULL != new_file) {
+				filename = new_file;
+			}
+			else if ((flags & O_CREAT) && (flags & O_EXCL)) {
+				/* When running in gg mode, we will allow creating files with
+				   O_EXCL | O_CREAT. This allows applications to create temporary files. */
+				__gg_check_to_allow = true;
+			}
+			else {
+				/* let's see if we allowed this file before */
+				bool allowed = false;
+				for (size_t i = 0; i < __gg.allowed_files.count; i++) {
+					if (strcmp(filename, __gg.allowed_files.data[ i ].path) == 0) {
+						allowed = true;
+						break;
+					}
+				}
+
+				if (!allowed) {
+					errno = ENOENT;
+					return -1;
+				}
 			}
 		}
 	}
