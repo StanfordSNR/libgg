@@ -14,10 +14,10 @@ int open(const char *filename, int flags, ...)
 
 	/* NOTE there are some cases that the outfile could be also an infile. One
 	   example is `ranlib`. To distinguish these (as the infile must be read
-	   from .gg directory), the outfile must be opened with O_WRONLY flag,
-		 otherwise it will be treated as an infile */
+	   from .gg directory), the outfile must be opened with O_WRONLY or O_RDWR,
+		 otherwise it will be treated as an infile. */
 	if (__gg.enabled) {
-		if ( strcmp(filename, __gg.outfile) == 0 && ( flags & O_WRONLY ) ) {
+		if ( strcmp(filename, __gg.outfile) == 0 && ( ( flags & O_WRONLY ) || ( flags & O_RDWR ) ) ) {
 			/* let's allow it */
 		}
 		else {
