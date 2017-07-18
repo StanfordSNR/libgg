@@ -73,7 +73,7 @@ void __gg_init()
 		__gg.enabled = true;
 		vector_InFile_init( &__gg.infiles );
 		vector_InDir_init( &__gg.indirs );
-		vector_AllowedFiles_init( &__gg.allowed_files );
+		vector_AllowedFile_init( &__gg.allowed_files );
 		GG_DEBUG( "running in gg mode.\n" );
 	}
 	else {

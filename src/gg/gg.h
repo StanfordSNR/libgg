@@ -11,6 +11,7 @@
 void   __gg_read_thunk();
 char * __gg_get_filename( const char * filename );
 int    __gg_stat( const char * filename, struct stat * restrict buf );
+bool   __gg_is_allowed( const char * filename, const bool check_infiles );
 
 typedef struct
 {
@@ -27,11 +28,11 @@ typedef struct
   char path[ PATH_MAX ];
 } InDir;
 
-typedef InDir AllowedFiles;
+typedef InDir AllowedFile;
 
 VECTORDEF( InFile );
 VECTORDEF( InDir );
-VECTORDEF( AllowedFiles );
+VECTORDEF( AllowedFile );
 
 typedef struct
 {
@@ -42,7 +43,7 @@ typedef struct
 
 	vector_InFile infiles;
 	vector_InDir indirs;
-  vector_AllowedFiles allowed_files;
+  vector_AllowedFile allowed_files;
 	char outfile[PATH_MAX];
 } __gg_struct;
 

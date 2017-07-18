@@ -15,7 +15,7 @@
 
 VECTORFUNCS( InFile );
 VECTORFUNCS( InDir );
-VECTORFUNCS( AllowedFiles );
+VECTORFUNCS( AllowedFile );
 
 /* from fcntl/open.c */
 int unrestricted_open(const char *filename, int flags, ...)
@@ -142,17 +142,6 @@ char * __gg_get_filename( const char * filename )
   return NULL;
 }
 
-int is_dir_allowed( const char * path )
-{
-  for ( size_t i = 0; i < __gg.indirs.count; i++ ) {
-    if ( strcmp( path, __gg.indirs.data[ i ].path ) == 0 ) {
-      return i;
-    }
-  }
-
-  return -1;
-}
-
 int __gg_stat( const char * filename, struct stat * restrict buf )
 {
   int file_index = 0;
@@ -197,4 +186,21 @@ int __gg_stat( const char * filename, struct stat * restrict buf )
   buf->st_ctime = 231508800; /* time of last status change */
 
   return 0;
+}
+
+bool __gg_is_allowed( const char * filename, const bool check_infiles )
+{
+  if ( check_infiles ) {
+    if ( __gg_get_filename( filename ) ) {
+      return true;
+    }
+  }
+
+  for (size_t i = 0; i < __gg.allowed_files.count; i++) {
+    if (strcmp(filename, __gg.allowed_files.data[ i ].path) == 0) {
+      return true;
+    }
+  }
+
+  return false;
 }

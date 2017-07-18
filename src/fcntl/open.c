@@ -33,15 +33,7 @@ int open(const char *filename, int flags, ...)
 			}
 			else {
 				/* let's see if we allowed this file before */
-				bool allowed = false;
-				for (size_t i = 0; i < __gg.allowed_files.count; i++) {
-					if (strcmp(filename, __gg.allowed_files.data[ i ].path) == 0) {
-						allowed = true;
-						break;
-					}
-				}
-
-				if (!allowed) {
+				if (!__gg_is_allowed(filename, false)) {
 					errno = ENOENT;
 					return -1;
 				}
@@ -63,7 +55,9 @@ int open(const char *filename, int flags, ...)
 	int retval = __syscall_ret(fd);
 
 	if ( __gg.enabled && __gg_check_to_allow && retval != -1 ) {
-		vector_AllowedFiles_push_back( &__gg.allowed_files, strdup( filename ) );
+		AllowedFile allowed_file;
+		strcpy( allowed_file.path, filename );
+		vector_AllowedFile_push_back( &__gg.allowed_files, &allowed_file );
 	}
 
 	return retval;
