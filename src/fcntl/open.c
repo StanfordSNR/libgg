@@ -17,8 +17,11 @@ int open(const char *filename, int flags, ...)
 	from .gg directory), the outfile must be opened with O_WRONLY or O_RDWR,
 	otherwise it will be treated as an infile. */
 	if ( __gg.enabled ) {
+		GG_DEBUG( "open(\"%s\", 0x%x)", filename, flags );
+
 		char * infile_path = __gg_get_filename( filename );
 
+		const int accmode = flags & O_ACCMODE;
 		const bool is_infile = ( infile_path != NULL );
 		const bool is_allowed_file = __gg_is_allowed( filename, false );
 		const bool is_outfile = ( strcmp( filename, __gg.outfile ) == 0 );
@@ -47,7 +50,7 @@ int open(const char *filename, int flags, ...)
 		}
 		else { /* not an outfile */
 			if ( is_infile ) {
-				if ( ( flags & O_ACCMODE ) == O_RDONLY ) {
+				if ( accmode == O_RDONLY ) {
 					/* the user is going to read the file, so we redirect to the infile */
 					filename = infile_path;
 				}
@@ -63,7 +66,7 @@ int open(const char *filename, int flags, ...)
 				else {
 					/* it's not an infile, an allowed file or an outfile. the user is allowed
 					to open it with (O_WRONLY | O_RDWR) & O_TRUNC */
-					if ( ( ( flags & O_ACCMODE == O_RDWR ) || ( flags & O_ACCMODE == O_WRONLY ) ) && ( flags & O_EXCL ) && ( flags & O_CREAT ) ) {
+					if ( ( accmode == O_RDWR || accmode == O_WRONLY ) && ( flags & O_EXCL ) && ( flags & O_CREAT ) ) {
 						__gg_check_to_allow = true;
 					}
 					else {
@@ -73,8 +76,6 @@ int open(const char *filename, int flags, ...)
 				}
 			}
 		}
-
-		GG_DEBUG( "open redirected to: %s\n", filename );
 	}
 
 	if ((flags & O_CREAT) || (flags & O_TMPFILE) == O_TMPFILE) {
