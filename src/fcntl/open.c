@@ -17,15 +17,15 @@ int open(const char *filename, int flags, ...)
 	from .gg directory), the outfile must be opened with O_WRONLY or O_RDWR,
 	otherwise it will be treated as an infile. */
 	if ( __gg.enabled ) {
-		GG_DEBUG( "open requested for: %s\n", filename );
+		GG_DEBUG( "open requested for: %s (%x)\n", filename, flags );
 
 		char * infile_path = __gg_get_filename( filename );
 
 		GG_DEBUG( "found infile path: %s\n", infile_path );
 
-		bool is_infile = ( infile_path != NULL );
-		bool is_allowed_file = __gg_is_allowed( filename, false );
-		bool is_outfile = ( strcmp( filename, __gg.outfile ) == 0 );
+		const bool is_infile = ( infile_path != NULL );
+		const bool is_allowed_file = __gg_is_allowed( filename, false );
+		const bool is_outfile = ( strcmp( filename, __gg.outfile ) == 0 );
 
 		GG_DEBUG( "infile(%d), allowed_file(%d), outfile(%d)\n", is_infile, is_allowed_file, is_outfile );
 
