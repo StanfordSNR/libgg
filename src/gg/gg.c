@@ -74,6 +74,7 @@ bool infile_decode_callback( pb_istream_t * stream,
 
     infile.order = infile_proto.order;
     infile.size = infile_proto.size;
+    infile.enabled = true;
     vector_InFile_push_back( &__gg.infiles, &infile );
 
     GG_INFO( "infile: %s (%.8s...)\n", infile.filename, infile.hash );
@@ -131,15 +132,22 @@ void __gg_read_thunk()
   GG_INFO( "outfile: %s\n", __gg.outfile );
 }
 
-char * __gg_get_filename( const char * filename )
+int get_infile_index( const char * filename )
 {
   for ( size_t i = 0; i < __gg.infiles.count; i++ ) {
-    if ( strcmp( filename, __gg.infiles.data[ i ].filename ) == 0 ) {
-      return __gg.infiles.data[ i ].gg_path;
+    if ( __gg.infiles.data[ i ].enabled &&
+         strcmp( filename, __gg.infiles.data[ i ].filename ) == 0 ) {
+      return i;
     }
   }
 
-  return NULL;
+  return -1;
+}
+
+char * __gg_get_filename( const char * filename )
+{
+  int index = get_infile_index( filename );
+  return ( index == -1 ) ? NULL : __gg.infiles.data[ index ].gg_path;
 }
 
 int __gg_stat( const char * filename, struct stat * restrict buf )
@@ -150,7 +158,8 @@ int __gg_stat( const char * filename, struct stat * restrict buf )
 
   /* let's see if this file is in infiles. */
   for ( size_t i = 0; i < __gg.infiles.count; i++, file_index++ ) {
-    if ( strcmp( filename, __gg.infiles.data[ i ].filename ) == 0 ) {
+    if ( __gg.infiles.data[ i ].enabled &&
+         strcmp( filename, __gg.infiles.data[ i ].filename ) == 0 ) {
       retval = 0; // we found something!
       is_directory = false;
       break;
@@ -170,7 +179,7 @@ int __gg_stat( const char * filename, struct stat * restrict buf )
   if ( retval != 0 ) {
     /* let's see if this file is in allowed files */
     for ( size_t i = 0; i < __gg.allowed_files.count; i++, file_index++ ) {
-      if ( strcmp( filename, __gg.infiles.data[ i ].filename ) == 0 ) {
+      if ( strcmp( filename, __gg.allowed_files.data[ i ].path ) == 0 ) {
         retval = 0;
         is_directory = false;
         break;
@@ -202,7 +211,7 @@ int __gg_stat( const char * filename, struct stat * restrict buf )
 bool __gg_is_allowed( const char * filename, const bool check_infiles )
 {
   if ( check_infiles ) {
-    if ( __gg_get_filename( filename ) ) {
+    if ( get_infile_index( filename ) != -1 ) {
       return true;
     }
   }
@@ -214,4 +223,13 @@ bool __gg_is_allowed( const char * filename, const bool check_infiles )
   }
 
   return false;
+}
+
+void __gg_disable_infile( const char * filename )
+{
+  int index = get_infile_index( filename );
+  
+  if ( index != - 1 ) {
+    __gg.infiles.data[ index ].enabled = false;
+  }
 }

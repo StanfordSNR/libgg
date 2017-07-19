@@ -12,6 +12,7 @@ void   __gg_read_thunk();
 char * __gg_get_filename( const char * filename );
 int    __gg_stat( const char * filename, struct stat * restrict buf );
 bool   __gg_is_allowed( const char * filename, const bool check_infiles );
+void   __gg_disable_infile( const char * filename );
 
 typedef struct
 {
@@ -21,6 +22,7 @@ typedef struct
   char hash[ 64 + 1 ];
   int order;
   off_t size;
+  bool enabled;
 } InFile;
 
 typedef struct
