@@ -30,7 +30,7 @@ int open(const char *filename, int flags, ...)
 			/* no need to check is_allowed_file */
 			if ( is_infile ) {
 				/* this is both an infile and an outfile */
-				if ( ( flags & O_ACCMODE ) == O_RDONLY ) {
+				if ( accmode == O_RDONLY ) {
 					/* the user is going to read the file, so we redirect to the infile */
 					filename = infile_path;
 				}
@@ -55,7 +55,7 @@ int open(const char *filename, int flags, ...)
 					filename = infile_path;
 				}
 				else {
-					errno = EACCES;
+					errno = ENOENT;
 					return -1;
 				}
 			}
@@ -70,7 +70,7 @@ int open(const char *filename, int flags, ...)
 						__gg_check_to_allow = true;
 					}
 					else {
-						errno = EACCES;
+						errno = ENOENT;
 						return -1;
 					}
 				}
