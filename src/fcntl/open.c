@@ -23,52 +23,55 @@ int open(const char *filename, int flags, ...)
 		bool is_allowed_file = __gg_is_allowed( filename, false );
 		bool is_outfile = ( strcmp( filename, __gg.outfile ) == 0 );
 
-		if ( ( is_infile || is_allowed_file ) && !is_outfile ) {
+		if ( is_outfile ) {
+			/* no need to check is_allowed_file */
 			if ( is_infile ) {
-				/* infiles can only be opened in read-only mode */
+				/* this is both an infile and an outfile */
 				if ( flags & O_RDONLY ) {
+					/* the user is going to read the file, so we redirect to the infile */
+					filename = infile_path;
+				}
+				else if ( ( flags & O_WRONLY || flags & O_RDWR ) && ( flags & O_TRUNC ) ) {
+					/* from now on, this file can only be accessed as an outfile. */
+					__gg_disable_infile( filename );
+				}
+				else {
+					/* we can't let the user access this file */
+					errno = EACCES;
+					return -1;
+				}
+			}
+			else { /* not an infile, just an outfile */
+				/* let the user do anything with this outfile */
+			}
+		}
+		else { /* not an outfile */
+			if ( is_infile ) {
+				if ( flags & O_RDONLY ) {
+					/* the user is going to read the file, so we redirect to the infile */
 					filename = infile_path;
 				}
 				else {
 					errno = EACCES;
 					return -1;
 				}
-			} /* is_infile */
-			else {
-				/* it's an allowed file: do anything you want! */
 			}
-		}
-		else if ( !is_outfile ) {
-			/* it's not an infile, an allowed file or an outfile. the user is allowed
-			to open it with (O_WRONLY | O_RDWR) & O_TRUNC */
-			if ( ( flags & O_WRONLY || flags & O_RDWR) && ( flags & O_TRUNC ) ) {
-				__gg_check_to_allow = true;
+			else { /* not an infile, nor an outfile */
+				if ( is_allowed_file ) {
+					/* let the user do anything with this allowed file */
+				}
+				else {
+					/* it's not an infile, an allowed file or an outfile. the user is allowed
+					to open it with (O_WRONLY | O_RDWR) & O_TRUNC */
+					if ( ( flags & O_WRONLY || flags & O_RDWR) && ( flags & O_TRUNC ) ) {
+						__gg_check_to_allow = true;
+					}
+					else {
+						errno = EACCES;
+						return -1;
+					}
+				}
 			}
-			else {
-				errno = EACCES;
-				return -1;
-			}
-		}
-		else if ( !is_allowed_file ) {
-			/* this is both an infile and an outfile */
-			if ( flags & O_RDONLY ) {
-				/* the user is going to read the file, so we redirect to the infile */
-				filename = infile_path;
-			}
-			else if ( ( flags & O_WRONLY || flags & O_RDWR) && ( flags & O_TRUNC ) ) {
-				/* from now on, this file can only be accessed as an outfile. */
-				__gg_disable_infile( filename );
-			}
-			else {
-				/* we can't let the user access this file */
-				errno = EACCES;
-				return -1;
-			}
-		}
-		else {
-			GG_ERROR( "something is wrong with infiles and allowed files." );
-			errno = EACCES;
-			return -1;
 		}
 	}
 
