@@ -21,9 +21,13 @@ int open(const char *filename, int flags, ...)
 
 		char * infile_path = __gg_get_filename( filename );
 
+		GG_DEBUG( "found infile path: %s\n", infile_path );
+
 		bool is_infile = ( infile_path != NULL );
 		bool is_allowed_file = __gg_is_allowed( filename, false );
 		bool is_outfile = ( strcmp( filename, __gg.outfile ) == 0 );
+
+		GG_DEBUG( "infile(%d), allowed_file(%d), outfile(%d)\n", is_infile, is_allowed_file, is_outfile );
 
 		if ( is_outfile ) {
 			/* no need to check is_allowed_file */
