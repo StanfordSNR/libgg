@@ -17,6 +17,8 @@ int open(const char *filename, int flags, ...)
 	from .gg directory), the outfile must be opened with O_WRONLY or O_RDWR,
 	otherwise it will be treated as an infile. */
 	if ( __gg.enabled ) {
+		GG_DEBUG( "open requested for: %s\n", filename );
+
 		char * infile_path = __gg_get_filename( filename );
 
 		bool is_infile = ( infile_path != NULL );
@@ -63,7 +65,7 @@ int open(const char *filename, int flags, ...)
 				else {
 					/* it's not an infile, an allowed file or an outfile. the user is allowed
 					to open it with (O_WRONLY | O_RDWR) & O_TRUNC */
-					if ( ( flags & O_WRONLY || flags & O_RDWR) && ( flags & O_TRUNC ) ) {
+					if ( ( flags & O_WRONLY || flags & O_RDWR ) && ( flags & O_EXCL ) && ( flags & O_CREAT ) ) {
 						__gg_check_to_allow = true;
 					}
 					else {
@@ -73,6 +75,8 @@ int open(const char *filename, int flags, ...)
 				}
 			}
 		}
+
+		GG_DEBUG( "open redirected to: %s\n", filename );
 	}
 
 	if ((flags & O_CREAT) || (flags & O_TMPFILE) == O_TMPFILE) {

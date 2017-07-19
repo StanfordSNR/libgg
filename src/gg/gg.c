@@ -228,7 +228,7 @@ bool __gg_is_allowed( const char * filename, const bool check_infiles )
 void __gg_disable_infile( const char * filename )
 {
   int index = get_infile_index( filename );
-  
+
   if ( index != - 1 ) {
     __gg.infiles.data[ index ].enabled = false;
   }
