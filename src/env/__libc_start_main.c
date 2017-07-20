@@ -71,6 +71,7 @@ void __gg_init()
 {
 	if (getenv(GG_ENABLED_ENVAR)) {
 		__gg.enabled = true;
+		__gg.outfile_created = false;
 		vector_InFile_init( &__gg.infiles );
 		vector_InDir_init( &__gg.indirs );
 		vector_AllowedFile_init( &__gg.allowed_files );

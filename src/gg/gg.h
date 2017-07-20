@@ -47,6 +47,7 @@ typedef struct
 	vector_InDir indirs;
   vector_AllowedFile allowed_files;
 	char outfile[PATH_MAX];
+  bool outfile_created;
 } __gg_struct;
 
 extern __gg_struct __gg;

@@ -191,11 +191,18 @@ int __gg_stat( const char * filename, struct stat * restrict buf )
   }
 
   if ( retval != 0 ) {
+    if ( __gg.outfile_created && ( strcmp( __gg.outfile, filename ) == 0 ) ) {
+      retval = 0;
+      file_index = -1;
+    }
+  }
+
+  if ( retval != 0 ) {
     errno = ENOENT;
     return -1;
   }
 
-  if ( is_allowed_file ) {
+  if ( is_allowed_file || file_index == -1 ) {
     /* this might cause some problems... */
     size = 2048;
   }

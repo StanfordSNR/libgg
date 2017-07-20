@@ -37,6 +37,7 @@ int open(const char *filename, int flags, ...)
 				else if ( ( ( flags & O_ACCMODE == O_RDWR ) || ( flags & O_ACCMODE == O_WRONLY ) ) && ( flags & O_TRUNC ) ) {
 					/* from now on, this file can only be accessed as an outfile. */
 					__gg_disable_infile( filename );
+					__gg.outfile_created = true;
 				}
 				else {
 					/* we can't let the user access this file */
@@ -46,6 +47,7 @@ int open(const char *filename, int flags, ...)
 			}
 			else { /* not an infile, just an outfile */
 				/* let the user do anything with this outfile */
+				__gg.outfile_created = true;
 			}
 		}
 		else { /* not an outfile */
