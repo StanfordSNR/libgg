@@ -9,6 +9,7 @@
 int rename(const char *old, const char *new)
 {
 	if (__gg.enabled) {
+		GG_DEBUG( "rename(old=\"%s\", new=\"%s\")\n", old, new );
 		/* the only allowed destination is the outfile */
 		if (strcmp(new, __gg.outfile) != 0) {
 			errno = EACCES;

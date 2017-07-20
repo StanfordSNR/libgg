@@ -8,6 +8,7 @@
 int stat(const char *restrict path, struct stat *restrict buf)
 {
 	if( __gg.enabled ) {
+		GG_DEBUG( "stat(path=\"%s\")\n", path );
 		return __gg_stat( path, buf );
 	}
 

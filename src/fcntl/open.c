@@ -17,7 +17,7 @@ int open(const char *filename, int flags, ...)
 	from .gg directory), the outfile must be opened with O_WRONLY or O_RDWR,
 	otherwise it will be treated as an infile. */
 	if ( __gg.enabled ) {
-		GG_DEBUG( "open(\"%s\", 0x%x)\n", filename, flags );
+		GG_DEBUG( "open(filename=\"%s\", flags=0x%x)\n", filename, flags );
 
 		char * infile_path = __gg_get_filename( filename );
 
