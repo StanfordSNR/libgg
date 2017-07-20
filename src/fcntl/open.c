@@ -34,7 +34,7 @@ int open(const char *filename, int flags, ...)
 					/* the user is going to read the file, so we redirect to the infile */
 					filename = infile_path;
 				}
-				else if ( ( ( flags & O_ACCMODE == O_RDWR ) || ( flags & O_ACCMODE == O_WRONLY ) ) && ( flags & O_TRUNC ) ) {
+				else if ( ( ( accmode == O_RDWR ) || ( accmode == O_WRONLY ) ) && ( flags & O_TRUNC ) ) {
 					/* from now on, this file can only be accessed as an outfile. */
 					__gg_disable_infile( filename );
 					__gg.outfile_created = true;
