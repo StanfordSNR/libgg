@@ -158,6 +158,8 @@ int __gg_stat( const char * filename, struct stat * restrict buf )
   bool is_allowed_file = false;
   off_t size = 0;
 
+  GG_DEBUG( "gg_stat(path=\"%s\") = ", filename );
+
   /* let's see if this file is in infiles. */
   for ( size_t i = 0; i < __gg.infiles.count; i++, file_index++ ) {
     if ( __gg.infiles.data[ i ].enabled &&
@@ -198,6 +200,7 @@ int __gg_stat( const char * filename, struct stat * restrict buf )
   }
 
   if ( retval != 0 ) {
+    GG_DEBUG( "-1 (ENOENT)\n" );
     errno = ENOENT;
     return -1;
   }
@@ -223,6 +226,7 @@ int __gg_stat( const char * filename, struct stat * restrict buf )
   buf->st_mtime = 231508800; /* time of last modification */
   buf->st_ctime = 231508800; /* time of last status change */
 
+  GG_DEBUG( "0\n" );
   return 0;
 }
 
