@@ -13,6 +13,8 @@
 #include "gg.pb.h"
 #include "pb_decode.h"
 
+extern char * normalize_path( const char * pathname, char * base );
+
 VECTORFUNCS( InFile );
 VECTORFUNCS( InDir );
 VECTORFUNCS( AllowedFile );
@@ -150,7 +152,7 @@ char * __gg_get_filename( const char * filename )
   return ( index == -1 ) ? NULL : __gg.infiles.data[ index ].gg_path;
 }
 
-int __gg_stat( const char * filename, struct stat * restrict buf )
+int __gg_stat( const char * org_filename, struct stat * restrict buf )
 {
   int file_index = 0;
   int retval = -1;
@@ -158,7 +160,9 @@ int __gg_stat( const char * filename, struct stat * restrict buf )
   bool is_allowed_file = false;
   off_t size = 0;
 
-  GG_DEBUG( "gg_stat(path=\"%s\") = ", filename );
+  char * filename = normalize_path( filename, NULL );
+
+  GG_DEBUG( "gg_stat(path=\"%s\", npath=\"%s\") = ", org_filename, filename );
 
   /* let's see if this file is in infiles. */
   for ( size_t i = 0; i < __gg.infiles.count; i++, file_index++ ) {
@@ -201,7 +205,9 @@ int __gg_stat( const char * filename, struct stat * restrict buf )
 
   if ( retval != 0 ) {
     GG_DEBUG( "-1 (ENOENT)\n" );
+    
     errno = ENOENT;
+    free( filename );
     return -1;
   }
 
@@ -227,6 +233,8 @@ int __gg_stat( const char * filename, struct stat * restrict buf )
   buf->st_ctime = 231508800; /* time of last status change */
 
   GG_DEBUG( "0\n" );
+
+  free( filename );
   return 0;
 }
 
