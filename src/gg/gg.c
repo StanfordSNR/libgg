@@ -160,7 +160,7 @@ int __gg_stat( const char * org_filename, struct stat * restrict buf )
   bool is_allowed_file = false;
   off_t size = 0;
 
-  char * filename = normalize_path( filename, NULL );
+  const char * filename = normalize_path( org_filename, NULL );
 
   GG_DEBUG( "gg_stat(path=\"%s\", npath=\"%s\") = ", org_filename, filename );
 
@@ -205,7 +205,7 @@ int __gg_stat( const char * org_filename, struct stat * restrict buf )
 
   if ( retval != 0 ) {
     GG_DEBUG( "-1 (ENOENT)\n" );
-    
+
     errno = ENOENT;
     free( filename );
     return -1;

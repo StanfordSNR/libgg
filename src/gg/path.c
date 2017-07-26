@@ -74,7 +74,7 @@ char * normalize_path( const char * pathname, char * base )
     ni--;
   }
 
-  realloc( normalized, ni + 1 );
+  normalized = realloc( normalized, ni + 1 );
 
   return normalized;
 }
