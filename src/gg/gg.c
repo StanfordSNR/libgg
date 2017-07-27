@@ -13,8 +13,6 @@
 #include "gg.pb.h"
 #include "pb_decode.h"
 
-extern char * normalize_path( const char * pathname, char * base );
-
 VECTORFUNCS( InFile );
 VECTORFUNCS( InDir );
 VECTORFUNCS( AllowedFile );
@@ -160,7 +158,7 @@ int __gg_stat( const char * org_filename, struct stat * restrict buf )
   bool is_allowed_file = false;
   off_t size = 0;
 
-  const char * filename = normalize_path( org_filename, NULL );
+  char * filename = __gg_normalize_path( org_filename, NULL );
 
   GG_DEBUG( "gg_stat(path=\"%s\", npath=\"%s\") = ", org_filename, filename );
 
@@ -187,7 +185,7 @@ int __gg_stat( const char * org_filename, struct stat * restrict buf )
   if ( retval != 0 ) {
     /* let's see if this file is in allowed files */
     for ( size_t i = 0; i < __gg.allowed_files.count; i++, file_index++ ) {
-      if ( strcmp( filename, __gg.allowed_files.data[ i ].path ) == 0 ) {
+      if ( strcmp( org_filename, __gg.allowed_files.data[ i ].path ) == 0 ) {
         retval = 0;
         is_directory = false;
         is_allowed_file = true;

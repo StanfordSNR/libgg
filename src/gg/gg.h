@@ -13,6 +13,7 @@ char * __gg_get_filename( const char * filename );
 int    __gg_stat( const char * filename, struct stat * restrict buf );
 bool   __gg_is_allowed( const char * filename, const bool check_infiles );
 void   __gg_disable_infile( const char * filename );
+char * __gg_normalize_path( const char * pathname, char * base );
 
 typedef struct
 {

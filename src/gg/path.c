@@ -6,7 +6,7 @@
 
 #define IS_DELIM(x) ( x == '\0' || x == '/' )
 
-char * normalize_path( const char * pathname, char * base )
+char * __gg_normalize_path( const char * pathname, char * base )
 {
   char source_path[ PATH_MAX ] = { 0 };
 
