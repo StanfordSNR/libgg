@@ -69,7 +69,7 @@ char * normalize_path( const char * pathname, char * base )
     component = strtok_r( NULL, "/", &saveptr );
   }
 
-  if ( normalized[ ni - 1 ] == '/' ) {
+  if ( strlen( normalized ) > 1 && normalized[ ni - 1 ] == '/' ) {
     normalized[ ni - 1 ] = '\0';
     ni--;
   }
