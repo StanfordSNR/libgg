@@ -53,16 +53,27 @@ typedef struct
 
 extern __gg_struct __gg;
 
-#define GG_INFO( ... )    fprintf( stderr, "[gg:info] " __VA_ARGS__ )
-#define GG_DEBUG( ... )   fprintf( stderr, "[gg:debug] " __VA_ARGS__ )
-#define GG_WARNING( ... ) fprintf( stderr, "[gg:warning] " __VA_ARGS__ )
-#define GG_ERROR( ... )   fprintf( stderr, "[gg:error] " __VA_ARGS__ )
-
 #define GG_THUNK_MAGIC_NUMBER "##GGTHUNK##"
 
 #define GG_THUNK_PATH_ENVAR "__GG_THUNK_PATH__"
 #define GG_ENABLED_ENVAR    "__GG_ENABLED__"
 #define GG_DIR_ENVAR        "__GG_DIR__"
 #define GG_VERBOSE_ENVAR    "__GG_VERBOSE__"
+
+#ifdef GGDEBUG
+
+#define GG_INFO( ... )    fprintf( stderr, "[gg:info] " __VA_ARGS__ )
+#define GG_DEBUG( ... )   fprintf( stderr, "[gg:debug] " __VA_ARGS__ )
+#define GG_WARNING( ... ) fprintf( stderr, "[gg:warning] " __VA_ARGS__ )
+#define GG_ERROR( ... )   fprintf( stderr, "[gg:error] " __VA_ARGS__ )
+
+#else
+
+#define GG_INFO( ... )    do {} while(0)
+#define GG_DEBUG( ... )   do {} while(0)
+#define GG_WARNING( ... ) do {} while(0)
+#define GG_ERROR( ... )   do {} while(0)
+
+#endif /* GGDEBUG */
 
 #endif
