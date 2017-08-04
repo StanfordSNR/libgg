@@ -11,8 +11,7 @@ int open(const char *filename, int flags, ...)
 {
 	mode_t mode = 0;
 	bool __gg_check_to_allow = false;
-
-	char * __gg_normalized;
+	char * __gg_normalized = NULL;
 
 	/* NOTE there are some cases that the outfile could be also an infile. One
 	example is `ranlib`. To distinguish these (as the infile must be read
