@@ -12,12 +12,17 @@ int open(const char *filename, int flags, ...)
 	mode_t mode = 0;
 	bool __gg_check_to_allow = false;
 
+	char * __gg_normalized;
+
 	/* NOTE there are some cases that the outfile could be also an infile. One
 	example is `ranlib`. To distinguish these (as the infile must be read
 	from .gg directory), the outfile must be opened with O_WRONLY or O_RDWR,
 	otherwise it will be treated as an infile. */
 	if ( __gg.enabled ) {
-		GG_DEBUG( "open(filename=\"%s\", flags=0x%x)\n", filename, flags );
+		__gg_normalized = __gg_normalize_path( filename, NULL );
+		filename = __gg_normalized;
+
+		GG_DEBUG( "open(filename=\"%s\", npath=\"%s\", flags=0x%x)\n", filename, __gg_normalized, flags );
 
 		char * infile_path = __gg_get_filename( filename );
 
@@ -41,6 +46,7 @@ int open(const char *filename, int flags, ...)
 				}
 				else {
 					/* we can't let the user access this file */
+					free( __gg_normalized );
 					errno = EACCES;
 					return -1;
 				}
@@ -57,6 +63,7 @@ int open(const char *filename, int flags, ...)
 					filename = infile_path;
 				}
 				else {
+					free( __gg_normalized );
 					errno = ENOENT;
 					return -1;
 				}
@@ -72,6 +79,7 @@ int open(const char *filename, int flags, ...)
 						__gg_check_to_allow = true;
 					}
 					else {
+						free( __gg_normalized );
 						errno = ENOENT;
 						return -1;
 					}
@@ -99,6 +107,10 @@ int open(const char *filename, int flags, ...)
 		AllowedFile allowed_file;
 		strcpy( allowed_file.path, filename );
 		vector_AllowedFile_push_back( &__gg.allowed_files, &allowed_file );
+	}
+
+	if ( __gg_normalized ) {
+		free( __gg_normalized );
 	}
 
 	return retval;
