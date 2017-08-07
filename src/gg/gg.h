@@ -60,9 +60,7 @@ extern __gg_struct __gg;
 #define GG_DIR_ENVAR        "__GG_DIR__"
 #define GG_VERBOSE_ENVAR    "__GG_VERBOSE__"
 
-#define GGDEBUG 0
-
-#if GGDEBUG
+#ifdef GGDEBUG
 
 #define GG_INFO( ... )    fprintf( stderr, "[gg:info] " __VA_ARGS__ )
 #define GG_DEBUG( ... )   fprintf( stderr, "[gg:debug] " __VA_ARGS__ )
