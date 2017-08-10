@@ -61,7 +61,7 @@ bool infile_decode_callback( pb_istream_t * stream,
     return false;
   };
 
-  if ( strnlen( infile.hash, 1 ) ) {
+  if ( infile_proto.type != gg_protobuf_InFile_Type_DUMMY_DIRECTORY ) {
     if ( strlen( __gg.dir ) + strlen( infile.hash ) + 1 >= PATH_MAX ) {
       GG_ERROR( "gg path is longer than PATH_MAX, aborted." );
       return false;
