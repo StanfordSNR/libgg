@@ -60,20 +60,9 @@ extern __gg_struct __gg;
 #define GG_DIR_ENVAR        "__GG_DIR__"
 #define GG_VERBOSE_ENVAR    "__GG_VERBOSE__"
 
-#ifdef GGDEBUG
-
-#define GG_INFO( ... )    fprintf( stderr, "[gg:info] " __VA_ARGS__ )
-#define GG_DEBUG( ... )   fprintf( stderr, "[gg:debug] " __VA_ARGS__ )
-#define GG_WARNING( ... ) fprintf( stderr, "[gg:warning] " __VA_ARGS__ )
-#define GG_ERROR( ... )   fprintf( stderr, "[gg:error] " __VA_ARGS__ )
-
-#else
-
-#define GG_INFO( ... )    do {} while(0)
-#define GG_DEBUG( ... )   do {} while(0)
-#define GG_WARNING( ... ) do {} while(0)
-#define GG_ERROR( ... )   do {} while(0)
-
-#endif /* GGDEBUG */
+#define GG_INFO( ... )    do { if (__gg.verbose) fprintf(stderr, "[gg:info] " __VA_ARGS__); } while (0)
+#define GG_DEBUG( ... )   do { if (__gg.verbose) fprintf(stderr, "[gg:debug] " __VA_ARGS__); } while (0)
+#define GG_WARNING( ... ) do { if (__gg.verbose) fprintf(stderr, "[gg:warning] " __VA_ARGS__); } while (0)
+#define GG_ERROR( ... )   do { if (__gg.verbose) fprintf(stderr, "[gg:error] " __VA_ARGS__); } while (0)
 
 #endif
