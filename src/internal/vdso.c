@@ -6,6 +6,8 @@
 #include "libc.h"
 #include "syscall.h"
 
+#include "../gg/gg.h"
+
 #ifdef VDSO_USEFUL
 
 #if ULONG_MAX == 0xffffffff
@@ -42,6 +44,12 @@ static int checkver(Verdef *def, int vsym, const char *vername, char *strings)
 
 void *__vdsosym(const char *vername, const char *name)
 {
+        if ( __gg.enabled ) {
+	        /* do not make vsyscalls, to give visibility
+		   to ptrace sandbox */
+                return 0;
+        }
+
 	size_t i;
 	for (i=0; libc.auxv[i] != AT_SYSINFO_EHDR; i+=2)
 		if (!libc.auxv[i]) return 0;
