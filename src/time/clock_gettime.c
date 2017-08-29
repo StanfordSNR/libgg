@@ -5,6 +5,8 @@
 #include "libc.h"
 #include "atomic.h"
 
+#include "../gg/gg.h"
+
 #ifdef VDSO_CGT_SYM
 
 void *__vdsosym(const char *, const char *);
@@ -42,6 +44,10 @@ int __clock_gettime(clockid_t clk, struct timespec *ts)
 		 * a vdso function to use. */
 	}
 #endif
+
+	if ( __gg.enabled ) {
+	  return EINVAL; /* ar calls gettimeofday even with "D" argument */
+	}
 
 	r = __syscall(SYS_clock_gettime, clk, ts);
 	if (r == -ENOSYS) {
