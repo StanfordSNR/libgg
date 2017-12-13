@@ -6,7 +6,7 @@ extern "C" {
 
 #include <bits/ioctl.h>
 
-int ioctl (int, int, ...);
+int ioctl (int, long int, ...);
 
 #ifdef __cplusplus
 }

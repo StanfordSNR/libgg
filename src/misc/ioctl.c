@@ -2,7 +2,7 @@
 #include <stdarg.h>
 #include "syscall.h"
 
-int ioctl(int fd, int req, ...)
+int ioctl(int fd, long int req, ...)
 {
 	void *arg;
 	va_list ap;

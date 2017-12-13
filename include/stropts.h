@@ -130,7 +130,7 @@ struct str_list {
 };
 
 int isastream(int);
-int ioctl(int, int, ...);
+int ioctl(int, long int, ...);
 
 #ifdef __cplusplus
 }
