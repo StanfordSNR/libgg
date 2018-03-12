@@ -71,17 +71,17 @@ void __gg_init()
 {
 	if (getenv(GG_ENABLED_ENVAR)) {
 		__gg.enabled = true;
-		__gg.outfile_created = false;
-		vector_InFile_init( &__gg.infiles );
-		vector_InDir_init( &__gg.indirs );
+		vector_InData_init( &__gg.indata );
+		vector_DummyDir_init( &__gg.indirs );
 		vector_AllowedFile_init( &__gg.allowed_files );
+		vector_Output_init( &__gg.outputs );
 		GG_DEBUG( "running in gg mode.\n" );
 	}
 	else {
 		__gg.enabled = false;
 		__gg.verbose = false;
 		__gg.dir = NULL;
-		__gg.thunk_file = NULL;
+		__gg.manifest_file = NULL;
 		return;
 	}
 
@@ -93,23 +93,23 @@ void __gg_init()
 	__gg.dir = getenv(GG_DIR_ENVAR);
 
 	if ( __gg.dir == NULL ) {
-		GG_ERROR("gg directory is not set, using default (.gg).\n");
+		GG_WARNING("gg directory is not set, using default (.gg).\n");
 		__gg.dir = ".gg";
 	}
 	else {
 		GG_DEBUG("gg directory: %s\n", __gg.dir);
 	}
 
-	__gg.thunk_file = getenv(GG_THUNK_PATH_ENVAR);
+	__gg.manifest_file = getenv(GG_MANIFEST_ENVAR);
 
-  GG_DEBUG( "thunk filename: %s\n", __gg.thunk_file );
+  GG_DEBUG( "manifest filename: %s\n", __gg.manifest_file );
 
-  if (__gg.thunk_file == NULL) {
-    GG_ERROR( "cannot find thunk filename.\n" );
+  if (__gg.manifest_file == NULL) {
+    GG_ERROR( "cannot find manifest filename.\n" );
     return;
   }
 
-	__gg_read_thunk();
+	__gg_read_manifest();
 }
 
 int __libc_start_main(int (*main)(int,char **,char **), int argc, char **argv)
