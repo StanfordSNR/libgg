@@ -8,13 +8,6 @@
 
 #include "util/vector.h"
 
-void   __gg_read_manifest();
-char * __gg_get_filename( const char * filename );
-int    __gg_stat( const char * filename, struct stat * restrict buf );
-bool   __gg_is_allowed( const char * filename, const bool check_infiles );
-void   __gg_disable_infile( const char * filename );
-char * __gg_normalize_path( const char * pathname, char * base );
-
 typedef struct
 {
   char gg_path[ PATH_MAX ];
@@ -37,6 +30,14 @@ typedef struct
   char tag[ PATH_MAX ];
   bool created;
 } Output;
+
+void     __gg_read_manifest();
+char *   __gg_get_filename( const char * filename );
+int      __gg_stat( const char * filename, struct stat * restrict buf );
+bool     __gg_is_allowed( const char * filename, const bool check_infiles );
+Output * __gg_get_output( const char * filename );
+void     __gg_disable_infile( const char * filename );
+char *   __gg_normalize_path( const char * pathname, char * base );
 
 typedef DummyDir AllowedFile;
 

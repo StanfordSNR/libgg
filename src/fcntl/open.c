@@ -24,11 +24,12 @@ int open(const char *filename, int flags, ...)
 		GG_DEBUG( "open(filename=\"%s\", npath=\"%s\", flags=0x%x)\n", filename, __gg_normalized, flags );
 
 		char * infile_path = __gg_get_filename( filename );
+		Output * output = __gg_get_output( filename );
 
 		const int accmode = flags & O_ACCMODE;
 		const bool is_infile = ( infile_path != NULL );
 		const bool is_allowed_file = __gg_is_allowed( filename, false );
-		const bool is_outfile = ( strcmp( filename, __gg.outfile ) == 0 );
+		const bool is_outfile = ( output != NULL );
 
 		if ( is_outfile ) {
 			/* no need to check is_allowed_file */
@@ -41,7 +42,8 @@ int open(const char *filename, int flags, ...)
 				else if ( ( ( accmode == O_RDWR ) || ( accmode == O_WRONLY ) ) && ( flags & O_TRUNC ) ) {
 					/* from now on, this file can only be accessed as an outfile. */
 					__gg_disable_infile( filename );
-					__gg.outfile_created = true;
+					output->created = true;
+					filename = output->tag;
 				}
 				else {
 					/* we can't let the user access this file */
@@ -52,7 +54,8 @@ int open(const char *filename, int flags, ...)
 			}
 			else { /* not an infile, just an outfile */
 				/* let the user do anything with this outfile */
-				__gg.outfile_created = true;
+				output->created = true;
+				filename = output->tag;
 			}
 		}
 		else { /* not an outfile */

@@ -319,3 +319,14 @@ void __gg_disable_infile( const char * filename )
     __gg.indata.data[ index ].enabled = false;
   }
 }
+
+Output * __gg_get_output( const char * filename )
+{
+  for ( size_t i = 0; i < __gg.outputs.count; i++ ) {
+    if ( strcmp( __gg.outputs.data[ i ].filename, filename ) == 0 ) {
+      return &__gg.outputs.data[ i ];
+    }
+  }
+
+  return NULL;
+}

@@ -19,7 +19,7 @@ char *getcwd(char *buf, size_t size)
 	}
 
 	if (__gg.enabled) {
-		char * cwd = dirname(__gg.thunk_file);
+		char * cwd = dirname(__gg.manifest_file);
 		if (strlen(cwd) + 1 > size) {
 			errno = ERANGE;
 			return NULL;
