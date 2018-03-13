@@ -38,7 +38,7 @@ int unrestricted_open(const char *filename, int flags, ...)
 
 void abort_manifest_read()
 {
-  __gg.enabled = false;
+  abort();
 }
 
 void __gg_read_manifest()
