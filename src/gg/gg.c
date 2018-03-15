@@ -11,6 +11,8 @@
 #include "libc.h"
 
 #include "gg.h"
+#include "gg.pb.h"
+#include "pb_decode.h"
 
 VECTORFUNCS( InData );
 VECTORFUNCS( DummyDir );
@@ -36,10 +38,105 @@ int unrestricted_open(const char *filename, int flags, ...)
   return __syscall_ret(fd);
 }
 
-void abort_manifest_read()
+void abort_gg()
 {
   abort();
 }
+
+/*******************************************************************************
+ * READING THE THUNK                                                           *
+ ******************************************************************************/
+
+bool indata_decode_callback( pb_istream_t * stream,
+                          const pb_field_t * field,
+                          void ** arg )
+{
+  InData indata = { 0 };
+  InData * inserted = vector_InData_push_back( &__gg.indata, &indata );
+
+  if ( stream->bytes_left >= PATH_MAX ) {
+    GG_ERROR( "large data value" );
+    return false;
+  }
+
+  pb_read( stream, (void *)inserted->gg_path, stream->bytes_left );
+  char * eqpos = strchr( inserted->gg_path, '=' );
+
+  if ( !eqpos ) {
+    /* no need to store this, there's no filename! */
+    return true;
+  }
+
+  eqpos[ 0 ] = '\0';
+
+  if ( ( strlen( inserted->gg_path ) >= HASH_MAX_LENGTH ) ||
+       ( strlen( __gg.dir ) + strlen( inserted->gg_path ) + 1 >= PATH_MAX ) ) {
+    GG_ERROR( "large hash" );
+    return false;
+  }
+
+  strcpy( inserted->hash, inserted->gg_path );
+  strcpy( inserted->filename, eqpos + 1 );
+  inserted->gg_path[ 0 ] = '\0';
+  strcat( inserted->gg_path, __gg.dir );
+  strcat( inserted->gg_path, "/" );
+  strcat( inserted->gg_path, inserted->hash );
+
+  inserted->size = strtoul( inserted->hash + strlen( inserted->hash ) - 8,
+                            NULL, 16 );
+  inserted->enabled = true;
+
+  GG_INFO( "infile: %s (%.8s...)\n", inserted->filename, inserted->hash );
+
+  return true;
+}
+
+void __gg_read_thunk()
+{
+  gg_protobuf_Thunk result = {};
+
+  /* read the thunk file into a buffer */
+  FILE * fp = fdopen( unrestricted_open( __gg.thunk_file, O_RDONLY ), "r" );
+
+  if ( fp == NULL ) {
+    GG_ERROR( "cannot open file: %s\n", __gg.thunk_file );
+    return;
+  }
+
+  fseek( fp, 0, SEEK_END );
+  const long fsize = ftell( fp );
+  fseek( fp, 0, SEEK_SET );
+
+  uint8_t * fdata = malloc( fsize );
+  fread( fdata, fsize, 1, fp );
+  fclose( fp );
+
+  /* create istream for pb */
+  pb_istream_t is = pb_istream_from_buffer( fdata, fsize );
+
+  uint8_t magic_num[ sizeof( GG_THUNK_MAGIC_NUMBER ) ];
+  pb_read( &is, magic_num, sizeof( GG_THUNK_MAGIC_NUMBER ) - 1 );
+  magic_num[ sizeof( GG_THUNK_MAGIC_NUMBER ) - 1 ] = '\0';
+
+  if ( strcmp( GG_THUNK_MAGIC_NUMBER, ( char * )magic_num ) != 0 ) {
+    GG_ERROR( "not a thunk: %s\n", __gg.thunk_file );
+    return;
+  }
+
+  result.data.funcs.decode = &indata_decode_callback;
+  result.executables.funcs.decode = &indata_decode_callback;
+
+  if( !pb_decode( &is, gg_protobuf_Thunk_fields, &result ) ) {
+    GG_ERROR( "reading the thunk failed" );
+    abort_gg();
+  };
+
+  GG_INFO( "thunk processed: %s\n", __gg.thunk_file );
+}
+
+/*******************************************************************************
+ * READING THE MANIFEST                                                        *
+ ******************************************************************************/
 
 void __gg_read_manifest()
 {
@@ -63,7 +160,7 @@ void __gg_read_manifest()
   char * const fdata_end = fdata + fsize;
   const char * current = fdata;
 
-  enum { Z = 0, F1, F2, O1, O2, D1 } state;
+  enum { Z = 0, O1, O2, D1 } state;
   InData indata_temp;
   DummyDir ddir_temp;
   Output output_temp;
@@ -71,68 +168,25 @@ void __gg_read_manifest()
   while ( current < fdata_end ) {
     char * token_end = strchr( current, '\0' );
     if ( token_end == NULL ) {
-      return abort_manifest_read();
+      return abort_gg();
     }
 
     switch ( state ) {
     case Z:
     {
       switch( *current ) {
-      case 'F': state = F1; break;
       case 'D': state = D1; break;
       case 'O': state = O1; break;
       default:
-        return abort_manifest_read();
+        return abort_gg();
       }
 
-      break;
-    }
-
-    case F1:
-    {
-      /* resetting indata_temp */
-      indata_temp.hash[ 0 ] = indata_temp.gg_path[ 0 ]
-                            = indata_temp.filename[ 0 ] = '\0';
-
-      /* reading the filename */
-      if ( strlen( current ) >= PATH_MAX ) { return abort_manifest_read(); }
-
-      strcpy( indata_temp.filename, current );
-
-      state = F2;
-      break;
-    }
-
-    case F2:
-    {
-      /* reading the hash */
-      if ( strlen( current ) > 64 ) { return abort_manifest_read(); }
-
-      strcpy( indata_temp.hash, current );
-
-      if ( strlen( __gg.dir ) + strlen( indata_temp.hash ) + 1 >= PATH_MAX ) {
-        return abort_manifest_read();
-      }
-
-      strcat( indata_temp.gg_path, __gg.dir );
-      strcat( indata_temp.gg_path, "/" );
-      strcat( indata_temp.gg_path, indata_temp.hash );
-
-      indata_temp.size = strtoul( indata_temp.hash + strlen( indata_temp.hash ) - 8,
-                                  NULL, 16 );
-
-      indata_temp.enabled = true;
-      vector_InData_push_back( &__gg.indata, &indata_temp );
-
-      GG_INFO( "data: %s (%.8s...)\n", indata_temp.filename, indata_temp.hash );
-
-      state = Z;
       break;
     }
 
     case O1:
     {
-      if ( strlen( current ) >= PATH_MAX ) { return abort_manifest_read(); }
+      if ( strlen( current ) >= PATH_MAX ) { return abort_gg(); }
 
       output_temp.filename[ 0 ] = output_temp.tag[ 0 ] = '\0';
 
@@ -145,7 +199,7 @@ void __gg_read_manifest()
 
     case O2:
     {
-      if ( strlen( current ) >= PATH_MAX ) { return abort_manifest_read(); }
+      if ( strlen( current ) >= PATH_MAX ) { return abort_gg(); }
 
       output_temp.created = false;
 
@@ -162,7 +216,7 @@ void __gg_read_manifest()
 
     case D1:
     {
-      if ( strlen( current ) >= PATH_MAX ) { return abort_manifest_read(); }
+      if ( strlen( current ) >= PATH_MAX ) { return abort_gg(); }
 
       /* reading the dir name */
       ddir_temp.path[ 0 ] = '\0';
@@ -177,7 +231,7 @@ void __gg_read_manifest()
     }
 
     default:
-      return abort_manifest_read();
+      return abort_gg();
     }
 
     current = token_end + 1;
