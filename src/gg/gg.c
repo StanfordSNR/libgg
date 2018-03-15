@@ -75,20 +75,21 @@ bool indata_decode_callback( pb_istream_t * stream,
   }
 
   InData indata = { 0 };
-  InData * inserted = vector_InData_push_back( &__gg.indata, &indata );
 
-  strcpy( inserted->hash, buffer );
-  strcpy( inserted->filename, eqpos + 1 );
-  inserted->gg_path[ 0 ] = '\0';
-  strcat( inserted->gg_path, __gg.dir );
-  strcat( inserted->gg_path, "/" );
-  strcat( inserted->gg_path, inserted->hash );
+  strcpy( indata.hash, buffer );
+  strcpy( indata.filename, eqpos + 1 );
 
-  inserted->size = strtoul( inserted->hash + strlen( inserted->hash ) - 8,
-                            NULL, 16 );
-  inserted->enabled = true;
+  indata.gg_path[ 0 ] = '\0';
+  strcat( indata.gg_path, __gg.dir );
+  strcat( indata.gg_path, "/" );
+  strcat( indata.gg_path, indata.hash );
 
-  GG_INFO( "infile: %s (%.8s...)\n", inserted->filename, inserted->hash );
+  indata.size = strtoul( indata.hash + strlen( indata.hash ) - 8, NULL, 16 );
+  indata.enabled = true;
+
+  vector_InData_push_back( &__gg.indata, &indata );
+
+  GG_INFO( "infile: %s (%.8s...)\n", indata.filename, indata.hash );
 
   return true;
 }
@@ -163,7 +164,6 @@ void __gg_read_manifest()
   const char * current = fdata;
 
   enum { Z = 0, O1, O2, D1 } state;
-  InData indata_temp;
   DummyDir ddir_temp;
   Output output_temp;
 

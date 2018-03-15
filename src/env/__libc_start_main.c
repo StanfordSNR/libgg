@@ -82,6 +82,7 @@ void __gg_init()
 		__gg.verbose = false;
 		__gg.dir = NULL;
 		__gg.manifest_file = NULL;
+		__gg.thunk_file = NULL;
 		return;
 	}
 

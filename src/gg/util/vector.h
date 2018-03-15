@@ -35,8 +35,8 @@ x * vector_##x##_push_back( vector_##x * v, x * d ) \
     v->data = realloc( v->data, sizeof( x ) * v->size ); \
   } \
 \
-  v->data[ v->count++ ] = *d; \
-  return &v->data[ v->count - 1 ]; \
+  v->data[ v->count ] = *d; \
+  return &v->data[ v->count++ ]; \
 } \
 \
 x * vector_##x##_at( vector_##x * v, size_t index ) { \
