@@ -352,21 +352,39 @@ int __gg_stat( const char * org_filename, struct stat * restrict buf )
   return 0;
 }
 
-bool __gg_is_allowed( const char * filename, const bool check_indata )
+char * __gg_get_allowed( const char * filename, const bool check_indata )
 {
+  size_t idx = 0;
+
   if ( check_indata ) {
-    if ( get_indata_index( filename ) != -1 ) {
-      return true;
+    if ( ( idx = get_indata_index( filename ) ) != -1 ) {
+      return __gg.indata.data[ idx ].gg_path;
     }
   }
 
   for (size_t i = 0; i < __gg.allowed_files.count; i++) {
     if (strcmp(filename, __gg.allowed_files.data[ i ].path) == 0) {
-      return true;
+      return __gg.allowed_files.data[ i ].target;
     }
   }
 
-  return false;
+  return NULL;
+}
+
+char * __gg_create_allowed( const char * filename )
+{
+  static uint64_t id = 1;
+
+  if ( strlen( filename ) >= PATH_MAX ) {
+    return NULL;
+  }
+
+  AllowedFile allowed_file = { 0 };
+  sprintf( allowed_file.target, "__gg_temp_file__%d", id++ );
+  strcpy( allowed_file.path, filename );
+
+  vector_AllowedFile_push_back( &__gg.allowed_files, &allowed_file );
+  return __gg.allowed_files.data[ __gg.allowed_files.count - 1 ].target;
 }
 
 void __gg_disable_infile( const char * filename )

@@ -28,7 +28,7 @@ int open(const char *filename, int flags, ...)
 
 		const int accmode = flags & O_ACCMODE;
 		const bool is_infile = ( infile_path != NULL );
-		const bool is_allowed_file = __gg_is_allowed( filename, false );
+		const char * allowed_file = __gg_get_allowed( filename, false );
 		const bool is_outfile = ( output != NULL );
 
 		if ( is_outfile ) {
@@ -71,14 +71,16 @@ int open(const char *filename, int flags, ...)
 				}
 			}
 			else { /* not an infile, nor an outfile */
-				if ( is_allowed_file ) {
+				if ( allowed_file ) {
 					/* let the user do anything with this allowed file */
+					filename = allowed_file;
 				}
 				else {
 					/* it's not an infile, an allowed file or an outfile. the user is allowed
 					to open it with (O_WRONLY | O_RDWR) & O_TRUNC */
-					if ( ( accmode == O_RDWR || accmode == O_WRONLY ) && ( flags & O_EXCL ) && ( flags & O_CREAT ) ) {
-						__gg_check_to_allow = true;
+					if ( ( accmode == O_RDWR || accmode == O_WRONLY ) &&
+							 ( flags & O_EXCL ) && ( flags & O_CREAT ) ) {
+						filename = __gg_create_allowed( filename );
 					}
 					else {
 						free( __gg_normalized );
@@ -104,12 +106,6 @@ int open(const char *filename, int flags, ...)
 		__syscall(SYS_fcntl, fd, F_SETFD, FD_CLOEXEC);
 
 	int retval = __syscall_ret(fd);
-
-	if ( __gg.enabled && __gg_check_to_allow && retval != -1 ) {
-		AllowedFile allowed_file;
-		strcpy( allowed_file.path, filename );
-		vector_AllowedFile_push_back( &__gg.allowed_files, &allowed_file );
-	}
 
 	if ( __gg_normalized ) {
 		free( __gg_normalized );

@@ -22,10 +22,12 @@ int rename(const char *old, const char *new)
 		new = output->tag;
 
 		/* only the files that are created by the process can be renamed. */
-		if(!__gg_is_allowed(old, false)) {
+		const char * allowed_file = __gg_get_allowed(old, false);
+		if(!allowed_file) {
 			errno = EACCES;
 			return -1;
 		}
+		old = allowed_file;
 	}
 
 #ifdef SYS_rename
