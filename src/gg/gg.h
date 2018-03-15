@@ -66,11 +66,11 @@ typedef struct
 extern __gg_struct __gg;
 
 #define GG_THUNK_MAGIC_NUMBER "##GGTHUNK##"
-#define GG_MANIFEST_ENVAR   "GG_MANIFEST"
-#define GG_THUNK_PATH_ENVAR "__GG_THUNK_PATH__"
-#define GG_ENABLED_ENVAR    "__GG_ENABLED__"
-#define GG_DIR_ENVAR        "__GG_DIR__"
-#define GG_VERBOSE_ENVAR    "__GG_VERBOSE__"
+#define GG_MANIFEST_ENVAR     "GG_MANIFEST"
+#define GG_THUNK_PATH_ENVAR   "__GG_THUNK_PATH__"
+#define GG_ENABLED_ENVAR      "__GG_ENABLED__"
+#define GG_DIR_ENVAR          "__GG_DIR__"
+#define GG_VERBOSE_ENVAR      "__GG_VERBOSE__"
 
 #define GG_INFO( ... )    do { if (__gg.verbose) fprintf(stderr, "[gg:info] " __VA_ARGS__); } while (0)
 #define GG_DEBUG( ... )   do { if (__gg.verbose) fprintf(stderr, "[gg:debug] " __VA_ARGS__); } while (0)

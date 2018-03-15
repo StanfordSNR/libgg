@@ -123,7 +123,7 @@ void __gg_read_thunk()
 
   if ( strcmp( GG_THUNK_MAGIC_NUMBER, ( char * )magic_num ) != 0 ) {
     GG_ERROR( "not a thunk: %s\n", __gg.thunk_file );
-    return;
+    abort_gg();
   }
 
   result.data.funcs.decode = &indata_decode_callback;
@@ -134,6 +134,7 @@ void __gg_read_thunk()
     abort_gg();
   };
 
+  free( fdata );
   GG_INFO( "thunk processed: %s\n", __gg.thunk_file );
 }
 
@@ -239,6 +240,7 @@ void __gg_read_manifest()
     current = token_end + 1;
   }
 
+  free( fdata );
   GG_INFO( "manifest processed: %s\n", __gg.manifest_file );
 }
 
