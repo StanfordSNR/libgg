@@ -100,16 +100,17 @@ void __gg_init()
 		GG_DEBUG("gg directory: %s\n", __gg.dir);
 	}
 
+	__gg.thunk_file = getenv(GG_THUNK_PATH_ENVAR);
+	if (__gg.thunk_file) {
+		GG_DEBUG( "reading thunk file: %s\n", __gg.thunk_file );
+		__gg_read_thunk();
+	}
+
 	__gg.manifest_file = getenv(GG_MANIFEST_ENVAR);
-
-  GG_DEBUG( "manifest filename: %s\n", __gg.manifest_file );
-
-  if (__gg.manifest_file == NULL) {
-    GG_ERROR( "cannot find manifest filename.\n" );
-    return;
-  }
-
-	__gg_read_manifest();
+	if (__gg.manifest_file) {
+		GG_DEBUG( "reading manfiest file: %s\n", __gg.manifest_file );
+		__gg_read_manifest();
+	}
 }
 
 int __libc_start_main(int (*main)(int,char **,char **), int argc, char **argv)

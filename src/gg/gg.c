@@ -51,16 +51,15 @@ bool indata_decode_callback( pb_istream_t * stream,
                           const pb_field_t * field,
                           void ** arg )
 {
-  InData indata = { 0 };
-  InData * inserted = vector_InData_push_back( &__gg.indata, &indata );
+  char buffer[ PATH_MAX ] = { 0 };
 
   if ( stream->bytes_left >= PATH_MAX ) {
     GG_ERROR( "large data value" );
     return false;
   }
 
-  pb_read( stream, (void *)inserted->gg_path, stream->bytes_left );
-  char * eqpos = strchr( inserted->gg_path, '=' );
+  pb_read( stream, (void *)buffer, stream->bytes_left );
+  char * eqpos = strchr( buffer, '=' );
 
   if ( !eqpos ) {
     /* no need to store this, there's no filename! */
@@ -69,13 +68,16 @@ bool indata_decode_callback( pb_istream_t * stream,
 
   eqpos[ 0 ] = '\0';
 
-  if ( ( strlen( inserted->gg_path ) >= HASH_MAX_LENGTH ) ||
-       ( strlen( __gg.dir ) + strlen( inserted->gg_path ) + 1 >= PATH_MAX ) ) {
+  if ( ( strlen( buffer ) >= HASH_MAX_LENGTH ) ||
+       ( strlen( __gg.dir ) + strlen( buffer ) + 1 >= PATH_MAX ) ) {
     GG_ERROR( "large hash" );
     return false;
   }
 
-  strcpy( inserted->hash, inserted->gg_path );
+  InData indata = { 0 };
+  InData * inserted = vector_InData_push_back( &__gg.indata, &indata );
+
+  strcpy( inserted->hash, buffer );
   strcpy( inserted->filename, eqpos + 1 );
   inserted->gg_path[ 0 ] = '\0';
   strcat( inserted->gg_path, __gg.dir );
