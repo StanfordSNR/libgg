@@ -126,7 +126,8 @@ void __gg_read_thunk()
     abort_gg();
   }
 
-  result.data.funcs.decode = &indata_decode_callback;
+  result.values.funcs.decode = &indata_decode_callback;
+  result.thunks.funcs.decode = &indata_decode_callback;
   result.executables.funcs.decode = &indata_decode_callback;
 
   if( !pb_decode( &is, gg_protobuf_Thunk_fields, &result ) ) {
