@@ -77,9 +77,11 @@ int open(const char *filename, int flags, ...)
 				}
 				else {
 					/* it's not an infile, an allowed file or an outfile. the user is allowed
-					to open it with (O_WRONLY | O_RDWR) & O_TRUNC */
+					to open it with (O_WRONLY | O_RDWR) & O_CREAT. if user hasn't explicitly
+					mentioned O_EXCL, it will be added to the flags */
 					if ( ( accmode == O_RDWR || accmode == O_WRONLY ) &&
-							 ( flags & O_EXCL ) && ( flags & O_CREAT ) ) {
+							 ( flags & O_CREAT ) ) {
+						flags |= O_EXCL;
 						filename = __gg_create_allowed( filename );
 					}
 					else {
